@@ -23,7 +23,10 @@ import {
   Card,
   CardContent,
   CardActions,
+  LinearProgress,
+  Autocomplete,
 } from "@mui/material";
+
 import {
   collection,
   query,
@@ -31,10 +34,12 @@ import {
   getDocs,
   doc,
   updateDoc,
+  addDoc,
 } from "firebase/firestore"; // Firestore methods
 import Modal from "react-modal"; // Import the Modal component
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios"; 
+import { type } from "@testing-library/user-event/dist/type";
 // Modal styling
 const customStyles = {
   content: {
@@ -57,12 +62,25 @@ const MyListings = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth(); // Get the current logged-in user
   const [listings, setListings] = useState([]);
+  const [refreshData, setRefreshData] = useState(false); // To track when refresh is needed
+
   const [loading, setLoading] = useState(true); // General page loading
   const [modalLoading, setModalLoading] = useState(false); // Modal-specific loading
   const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
-  const fileInputRef = useRef(null); // Ref for file input
+  const fileInputRef = useRef(null);
+  const fileInputjRef = useRef(null); // Ref for file input
   const [imageModalOpen, setImageModalOpen] = useState(false); // Control image modal visibility
   const [selectedImage, setSelectedImage] = useState(""); // Store the image URL for modal
+  const [uploadProgress, setUploadProgress] = useState(0); // Track progress
+  const [uploadModalOpen, setUploadModalOpen] = useState(false); // Modal to show progress
+  const [successMessage, setSuccessMessage] = useState(false); // Track success message visibility
+  const [companyOptions, setCompanyOptions] = useState([]);
+  const [roleOptions, setRoleOptions] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState("");
+  const [newRoleName, setNewRoleName] = useState("");
+const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -87,58 +105,132 @@ const MyListings = () => {
   const goToDashboard = () => {
     navigate("/dashboard");
   };
+  const fetchCompanyNames = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "companyNames"));
+      const companies = querySnapshot.docs.map((doc) => ({
+        label: doc.data().Name,
+      }));
+      setCompanyOptions(companies);
+    } catch (error) {
+      console.error("Error fetching company names: ", error);
+    }
+  };
+
+  const fetchRoleNames = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "roles"));
+      const roles = querySnapshot.docs.map((doc) => ({
+        label: doc.data().Name,
+      }));
+      setRoleOptions(roles);
+    } catch (error) {
+      console.error("Error fetching roles: ", error);
+    }
+  };
 
   // Function to fetch listings
   const fetchListings = useCallback(async () => {
+    const urls = [
+      "https://script.googleusercontent.com/macros/echo?user_content_key=k0OG0JKOSzaLAFNDKHo7kMxs4KpStj32XEeeDX55g3nlcuZ8dDS7b9cL8__rBbxHrZrSO_NtYYxk0vtXtMn7lwryIG_07SfJm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnFZGphUdMR2lBu6FN-70S2eyuymZOB7U80U7I78BulIGKernFPceSJZ916Es_WZVjcuGBe8UjSabZMSJ69PShmBCP2NUJ7UDFA&lib=MPbF69BJGBErAUuGW4fwMgYuqugO6Dz5e",
+      // "https://script.googleusercontent.com/macros/echo?user_content_key=bbpYS90jTMG0EvBm7351gOw68Ts8jRKt9I9iV1HTHNmVbu3IzlgrBNJCn-4u0xcLKTWnnwQqR7XHkO69JJsYML9CuoNH4rIYm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnMsNHbV_FMlW5XaMA_x0t2RL3SIUtp-w2P01N7Q4fYk_vdwKKITucPozIuOZU1wNaeJMN7NvWwyS7sdFXaFoPUdOtaYSyHz01tz9Jw9Md8uu&lib=MBFphmX3Q7SOrOzYn9fGwm9RaTK-j2XsW",
+      // Add more URLs if needed
+    ];
+
+    // Function to select a random URL from the array
+    function getRandomUrl() {
+      const randomIndex = Math.floor(Math.random() * urls.length);
+      return urls[randomIndex];
+    }
+
+    const scriptUrl = getRandomUrl();
     try {
-      const q = query(
-        collection(db, "companyData"),
-        where("createdBy", "==", currentUser.email)
+      const response = await axios.get(scriptUrl);
+      const data = response.data;
+      console.log(data);
+      // Since you're fetching user-specific listings, you'll need to filter the results by current user email
+      const userListings = data.filter(
+        (listing) => listing.createdBy === currentUser.email
       );
-      const querySnapshot = await getDocs(q);
-
-      const userListings = [];
-      querySnapshot.forEach((doc) => {
-        userListings.push({ id: doc.id, ...doc.data() });
-      });
-
-      setListings(userListings);
+      setListings(data);
+      listings.map((listing) => console.log(listing));
       setLoading(false);
+      console.log("listings", listings);
     } catch (error) {
-      console.error("Error fetching listings: ", error);
+      console.error("Error fetching listings from Google Sheets: ", error);
       setLoading(false);
     }
   }, [currentUser]);
+  useEffect(() => {
+    const fetchCompanyNames = async () => {
+      const querySnapshot = await getDocs(collection(db, "companyNames"));
+      const companies = querySnapshot.docs.map((doc) => ({
+        label: doc.data().Name,
+      }));
+      setCompanyOptions(companies);
+    };
 
+    const fetchRoleNames = async () => {
+      const querySnapshot = await getDocs(collection(db, "roles"));
+      const roles = querySnapshot.docs.map((doc) => ({
+        label: doc.data().Name,
+      }));
+      setRoleOptions(roles);
+    };
+
+    fetchCompanyNames();
+    fetchRoleNames();
+  }, []);
+
+  useEffect(() => {
+    if (listings.length > 0) {
+      console.log("Updated listings:", listings); // Now the updated listings will be logged
+      listings.map((listing) => console.log("chalo", listing.documentId));
+
+      const userListings = listings.filter(
+        (listing) => listing.createdBy === currentUser.email
+      );
+      console.log("userlisting", userListings); // This will map and log each listing
+    }
+  }, [listings]);
   useEffect(() => {
     if (currentUser) {
       fetchListings();
     }
   }, [currentUser, fetchListings]);
 
-  const uploadImageToCloudinary = async (imageFile) => {
-    const cloudinaryFormData = new FormData();
-    const fileNameWithoutExtension = imageFile.name
-      .split(".")
-      .slice(0, -1)
-      .join(".");
+  const uploadImagesToCloudinary = async (imageFiles) => {
+    const imageUrls = [];
+    for (const imageFile of imageFiles) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("upload_preset", "placement_default");
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/placementinplace/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      imageUrls.push(data.secure_url); // Store URL
+    }
+    return imageUrls; // Return array of image URLs
+  };
 
-    const uniqueFileName = `${fileNameWithoutExtension}_${Date.now()}`;
-
-    cloudinaryFormData.append("file", imageFile);
-    cloudinaryFormData.append("upload_preset", "placement_default"); // Your upload preset
-    cloudinaryFormData.append("public_id", uniqueFileName); // Set unique public ID
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/placementinplace/image/upload`,
-      {
-        method: "POST",
-        body: cloudinaryFormData,
-      }
-    );
-
-    const data = await response.json();
-    return data.secure_url; // Get the secure URL from Cloudinary response
+  // Modified function to upload PDFs to Cloudinary
+  const uploadPDFsToCloudinary = async (pdfFiles) => {
+    const pdfUrls = [];
+    for (const pdfFile of pdfFiles) {
+      const formData = new FormData();
+      formData.append("file", pdfFile);
+      formData.append("upload_preset", "job_descriptions_default");
+      formData.append("resource_type", "raw");
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/jobdesc/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      pdfUrls.push(data.secure_url); // Store PDF URL
+    }
+    return pdfUrls; // Return array of PDF URLs
   };
 
   // Handle form input change for editing
@@ -152,7 +244,9 @@ const MyListings = () => {
         } else {
           return {
             ...prevData,
-            openFor: prevData.openFor.filter((item) => item !== value),
+            openFor: prevData.openFor
+              .split(", ")
+              .filter((item) => item !== value),
           };
         }
       });
@@ -178,7 +272,7 @@ const MyListings = () => {
       jobDescriptions: listing.jobDescriptions || [], // Handle multiple job description URLs
       finalHiringNumber: listing.finalHiringNumber || "",
       iitName: listing.iitName || "",
-      documentId: listing.id,
+      documentId: listing.documentId,
     });
     setModalIsOpen(true); // Open modal when editing
   };
@@ -186,13 +280,59 @@ const MyListings = () => {
   // Handle form submission and updating both Firestore and Google Sheets
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    // setModalLoading(true); // Show loading only on modal
+    const mtechSelected = formData.openFor.includes("MTech");
     setModalLoading(true); // Show loading only on modal
+    setUploadProgress(20); // Start at 20% for image uploading
+    setUploadModalOpen(true); // Open the progress modal
 
     // Upload image to Cloudinary if a new one is selected
-    let screenshotURL = formData.mailScreenshot;
-    if (fileInputRef.current?.files?.length) {
-      screenshotURL = await uploadImageToCloudinary(formData.mailScreenshot); // Upload to Cloudinary
+    let mailScreenshotURLs = [];
+    let jobDescriptionURLs = [];
+
+    const uploadTasks = [];
+
+    if (
+      mtechSelected &&
+      formData.mailScreenshots &&
+      Array.isArray(formData.mailScreenshots) &&
+      formData.mailScreenshots.length > 0
+    ) {
+      uploadTasks.push(
+        uploadImagesToCloudinary(formData.mailScreenshots)
+          .then((urls) => {
+            mailScreenshotURLs = urls;
+          })
+          .catch((error) => {
+            console.error("Error uploading mail screenshots:", error);
+          })
+      );
     }
+
+    // Check if job descriptions exist before attempting to upload
+    if (
+      mtechSelected &&
+      formData.jobDescriptions &&
+      Array.isArray(formData.jobDescriptions) &&
+      formData.jobDescriptions.length > 0
+    ) {
+      uploadTasks.push(
+        uploadPDFsToCloudinary(formData.jobDescriptions)
+          .then((urls) => {
+            jobDescriptionURLs = urls;
+          })
+          .catch((error) => {
+            console.error("Error uploading job descriptions:", error);
+          })
+      );
+    }
+
+    await Promise.all(uploadTasks);
+    setUploadProgress(40); // Update after image upload
+
+    // if (fileInputjRef.current?.files?.length) {
+    //   jobdescURL = await uploadPDFsToCloudinary(formData.jobDescriptions); // Upload to Cloudinary
+    // }
 
     try {
       const docRef = doc(db, "companyData", formData.documentId);
@@ -207,12 +347,18 @@ const MyListings = () => {
         openFor: formData.openFor,
         pptDate: formData.pptDate,
         oaDate: formData.oaDate,
-        mailScreenshots: formData.mailScreenshots, // Save array of mail screenshots
-        jobDescriptions: formData.jobDescriptions, // Save array of job description URLs
+        mailScreenshots: mailScreenshotURLs.length
+          ? mailScreenshotURLs
+          : formData.mailScreenshots, // Update with new or existing URLs
+        jobDescriptions: jobDescriptionURLs.length
+          ? jobDescriptionURLs
+          : formData.jobDescriptions, // Update with new or existing URLs
         finalHiringNumber: formData.finalHiringNumber,
         iitName: formData.iitName,
       });
+      setUploadProgress(60); // Update after image upload
 
+      console.log(typeof formData.openFor);
       // Submit the form data to Google Sheets
       const newFormData = new FormData();
       newFormData.append("documentId", formData.documentId); // Append documentId
@@ -221,39 +367,140 @@ const MyListings = () => {
       newFormData.append("stipend", formData.stipend);
       newFormData.append("role", formData.role);
       newFormData.append("hrDetails", formData.hrDetails);
-      newFormData.append("openFor", formData.openFor.join(", ")); // Convert array to string
+      newFormData.append("openFor", formData.openFor); // Convert array to string
       newFormData.append("pptDate", formData.pptDate);
       newFormData.append("oaDate", formData.oaDate);
-      newFormData.append("mailScreenshots", formData.mailScreenshots);
-      newFormData.append("jobDescriptions", formData.jobDescriptions);
+      newFormData.append(
+        "mailScreenshots",
+        mailScreenshotURLs.length
+          ? mailScreenshotURLs
+          : formData.mailScreenshots
+      );
+      newFormData.append(
+        "jobDescriptions",
+        jobDescriptionURLs.length
+          ? jobDescriptionURLs
+          : formData.jobDescriptions
+      );
       newFormData.append("finalHiringNumber", formData.finalHiringNumber);
       newFormData.append("iitName", formData.iitName);
 
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbzqF8aBw9Qp422Z2mDf2XjPUtWL84Hoa5d0CXNqFeGCdtHu2Ybm4s80bfgyjBwyZFyRxw/exec",
+        "https://script.google.com/macros/s/AKfycbxh7WJandPA6v4cNMCtY5ugBckhUL7UxldVPrR5g9zJMx7T_-8Rcp7gu8mBhwQpV3FxPg/exec",
         {
           method: "POST",
           body: newFormData,
         }
       );
+      setUploadProgress(80); // Firestore update completed
+
+      const getResponse = await fetch(
+        "https://script.google.com/macros/s/AKfycbxb9-v7gP70H29ovBZhrxWEUOypeveefUaQUVJvYOcFE8MPcvNMbvjRBUL0HxFf7ZlyIg/exec",
+        {
+          method: "GET",
+        }
+      );
 
       const result = await response.text();
-      console.log(result);
+      console.log("result", result);
 
-      setModalIsOpen(false); // Close the modal after saving
-      alert("Listing updated successfully!");
+      setUploadProgress(100); // Firestore update completed
+      setTimeout(() => {
+        // Close after completion
+        setSuccessMessage(true); // Show success message
+        fetchListings(); // Re-fetch the listings to show updated data
 
-      fetchListings(); // Re-fetch the listings to show updated data
+        setTimeout(() => {
+          setSuccessMessage(false);
+          setUploadModalOpen(false); // Hide success message after 3 seconds
+        }, 2500); // Show message for 3 seconds
+      }, 1000);
+      // Close the modal after saving
+      // alert("Listing updated successfully!");
+      setModalIsOpen(false);
+      // fetchListings(); // Re-fetch the listings to show updated data
     } catch (error) {
       console.error("Error updating listing: ", error);
     } finally {
       setModalLoading(false); // Hide modal loading
     }
   };
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
 
+    if (type === "checkbox") {
+      setFormData((prevData) => {
+        if (checked) {
+          return { ...prevData, openFor: [...prevData.openFor, value] };
+        } else {
+          return {
+            ...prevData,
+            openFor: prevData.openFor.filter((item) => item !== value),
+          };
+        }
+      });
+    } else if (type === "file") {
+      // Handle multiple file inputs (mailScreenshots and jobDescriptions)
+      if (name === "mailScreenshots") {
+        setFormData({ ...formData, mailScreenshots: Array.from(files) });
+      } else if (name === "jobDescriptions") {
+        setFormData({ ...formData, jobDescriptions: Array.from(files) });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
   const handleViewScreenshot = (imageUrl) => {
     setSelectedImage(imageUrl);
     setImageModalOpen(true);
+  };
+  useEffect(() => {
+    const fetchCompanyAndRoleData = async () => {
+      await fetchCompanyNames(); // Fetch updated company names
+      await fetchRoleNames(); // Fetch updated role names
+      setRefreshData(false); // Reset the refresh flag
+    };
+
+    // If refreshData is true, trigger the refresh
+    if (refreshData) {
+      fetchCompanyAndRoleData();
+    }
+  }, [refreshData]); // Trigger when refreshData changes
+
+  const handleAddCompany = async () => {
+    if (newCompanyName.trim()) {
+      try {
+        // Add the new company to Firestore
+        await addDoc(collection(db, "companyNames"), { Name: newCompanyName });
+setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
+        // Clear the input and close the modal
+        setNewCompanyName("");
+        setModalOpen(false);
+        setRefreshData(true);
+        // Fetch updated company names to refresh the list
+        // Call the function that fetches company names
+      } catch (error) {
+        console.error("Error adding company name:", error);
+      }
+    }
+  };
+
+  const handleAddRole = async () => {
+    if (newRoleName.trim()) {
+      try {
+        // Add the new role to Firestore
+        await addDoc(collection(db, "roles"), { Name: newRoleName });
+setFormData((prevData) => ({ ...prevData, role: newRoleName }));
+        // Clear the input and close the modal
+        setNewRoleName("");
+        setRoleModalOpen(false);
+
+        // Fetch updated role names to refresh the list
+        setRefreshData(true); // Call the function that fetches role names
+      } catch (error) {
+        console.error("Error adding role:", error);
+      }
+    }
   };
 
   const handleCloseImageModal = () => {
@@ -271,6 +518,9 @@ const MyListings = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
+const filteredListings = listings.filter((listing) =>
+  listing.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -278,6 +528,25 @@ const MyListings = () => {
 
   return (
     <Container maxWidth="md">
+      <Dialog open={uploadModalOpen}>
+        <DialogTitle>Uploading</DialogTitle>
+        <DialogContent>
+          <Box sx={{ width: "100%" }}>
+            {!successMessage && (
+              <>
+                <Typography>Uploading... {uploadProgress}%</Typography>
+                <LinearProgress variant="determinate" value={uploadProgress} />
+              </>
+            )}
+            {successMessage && (
+              <Typography variant="h6" color="green">
+                Edit Successful!
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+      </Dialog>
+
       <Box
         sx={{ mt: 4, mb: 4, display: "flex", justifyContent: "space-between" }}
       >
@@ -296,6 +565,13 @@ const MyListings = () => {
           </Button>
         </Box>
       </Box>
+      <TextField
+        fullWidth
+        label="Search by Company Name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ mb: 4 }}
+      />
 
       {listings.length > 0 ? (
         <Box
@@ -309,67 +585,78 @@ const MyListings = () => {
             gap: 3,
           }}
         >
-          {listings.map((listing) => (
-            <Card key={listing.id} sx={{ padding: 2 }}>
-              <CardContent>
-                <Typography variant="h6">{listing.companyName}</Typography>
-                <Typography>Job Type: {listing.jobType}</Typography>
-                <Typography>Stipend: {listing.stipend}</Typography>
-                <Typography>Role: {listing.role}</Typography>
-                <Typography>
-                  HR Details: {listing.hrDetails || "N/A"}
-                </Typography>
-                <Typography>
-                  Open For: {listing.openFor.join(", ") || "N/A"}
-                </Typography>
-                <Typography>PPT Date: {listing.pptDate || "N/A"}</Typography>
-                <Typography>OA Date: {listing.oaDate || "N/A"}</Typography>
+          {listings
+            .filter((listing) =>
+              listing.companyName
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+            )
+            .map((listing) => (
+              <Card key={listing.documentId} sx={{ padding: 2 }}>
+                <CardContent>
+                  <Typography variant="h6">{listing.companyName}</Typography>
+                  <Typography>Job Type: {listing.jobType}</Typography>
+                  <Typography>Stipend: {listing.stipend}</Typography>
+                  <Typography>Role: {listing.role}</Typography>
+                  <Typography>
+                    HR Details: {listing.hrDetails || "N/A"}
+                  </Typography>
+                  <Typography>Open For: {listing.openFor || "N/A"}</Typography>
+                  <Typography>
+                    PPT Date:
+                    {listing.pptDate.split("T")[0] || "N/A"}
+                  </Typography>
+                  <Typography>
+                    OA Date: {listing.oaDate.split("T")[0] || "N/A"}
+                  </Typography>
 
-                <Typography>Mail Screenshots:</Typography>
-                {listing.mailScreenshots && listing.mailScreenshots.length > 0
-                  ? listing.mailScreenshots.map((url, index) => (
-                      <Button
-                        key={index}
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleViewImage(url)}
-                        sx={{ mr: 1, mb: 1 }}
-                      >
-                        Image {index + 1}
-                      </Button>
-                    ))
-                  : "N/A"}
+                  <Typography>Mail Screenshots:</Typography>
+                  {listing.mailScreenshots &&
+                  listing.mailScreenshots.split(",")[0][0] === "h"
+                    ? listing.mailScreenshots.split(",").map((url, index) => (
+                        <Button
+                          key={index}
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleViewImage(url)}
+                          sx={{ mr: 1, mb: 1 }}
+                        >
+                          Image {index + 1}
+                        </Button>
+                      ))
+                    : "N/A"}
 
-                <Typography>Job Description URLs:</Typography>
-                {listing.jobDescriptions && listing.jobDescriptions.length > 0
-                  ? listing.jobDescriptions.map((url, index) => (
-                      <Button
-                        key={index}
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => handleViewPDF(url)}
-                        sx={{ mr: 1, mb: 1 }}
-                      >
-                        PDF {index + 1}
-                      </Button>
-                    ))
-                  : "N/A"}
+                  <Typography>Job Description URLs:</Typography>
+                  {listing.jobDescriptions &&
+                  listing.jobDescriptions.split(",")[0][0] === "h"
+                    ? listing.jobDescriptions.split(",").map((url, index) => (
+                        <Button
+                          key={index}
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => handleViewPDF(url)}
+                          sx={{ mr: 1, mb: 1 }}
+                        >
+                          PDF {index + 1}
+                        </Button>
+                      ))
+                    : "N/A"}
 
-                <Typography>
-                  Final Hiring Number: {listing.finalHiringNumber || "N/A"}
-                </Typography>
-                <Typography>IIT Name: {listing.iitName}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  onClick={() => handleEditClick(listing)}
-                  variant="contained"
-                >
-                  Edit
-                </Button>
-              </CardActions>
-            </Card>
-          ))}
+                  <Typography>
+                    Final Hiring Number: {listing.finalHiringNumber || "N/A"}
+                  </Typography>
+                  <Typography>IIT Name: {listing.iitName}</Typography>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    onClick={() => handleEditClick(listing)}
+                    variant="contained"
+                  >
+                    Edit
+                  </Button>
+                </CardActions>
+              </Card>
+            ))}
         </Box>
       ) : (
         <Typography>No listings found.</Typography>
@@ -404,6 +691,37 @@ const MyListings = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+        <DialogTitle>Add New Company</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Company Name"
+            value={newCompanyName}
+            onChange={(e) => setNewCompanyName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddCompany}>Add Company</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={roleModalOpen} onClose={() => setRoleModalOpen(false)}>
+        <DialogTitle>Add New Role</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Role Name"
+            value={newRoleName}
+            onChange={(e) => setNewRoleName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRoleModalOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddRole}>Add Role</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit form in a modal popup */}
       <Modal
@@ -411,19 +729,42 @@ const MyListings = () => {
         onRequestClose={closeModal}
         contentLabel="Edit Listing Modal"
         style={customStyles}
+        ariaHideApp={false}
       >
         <Typography variant="h6">Edit Listing</Typography>
         <form onSubmit={handleEditSubmit}>
-          <TextField
-            label="Company Name"
-            name="companyName"
+          <Autocomplete
+            options={companyOptions}
+            freeSolo
             value={formData.companyName}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            required
-            disabled={modalLoading}
+            onInputChange={(e, newValue) =>
+              setFormData({ ...formData, companyName: newValue })
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Company Name" required />
+            )}
           />
+
+          <Button variant="contained" onClick={() => setModalOpen(true)}>
+            Add New Company
+          </Button>
+
+          <Autocomplete
+            options={roleOptions}
+            freeSolo
+            value={formData.role}
+            onInputChange={(e, newValue) =>
+              setFormData({ ...formData, role: newValue })
+            }
+            renderInput={(params) => (
+              <TextField {...params} label="Role" required />
+            )}
+          />
+
+          <Button variant="contained" onClick={() => setRoleModalOpen(true)}>
+            Add New Role
+          </Button>
+
           <FormControl fullWidth margin="normal">
             <Typography>Job Type:</Typography>
             <RadioGroup
@@ -446,16 +787,6 @@ const MyListings = () => {
             label="Stipend"
             name="stipend"
             value={formData.stipend}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            required
-            disabled={modalLoading}
-          />
-          <TextField
-            label="Role"
-            name="role"
-            value={formData.role}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
@@ -518,7 +849,11 @@ const MyListings = () => {
             label="PPT Date"
             name="pptDate"
             type="date"
-            value={formData.pptDate}
+            value={
+              formData.pptDate && formData.pptDate !== "N/A"
+                ? formData.pptDate.split("T")[0]
+                : ""
+            }
             onChange={handleInputChange}
             fullWidth
             margin="normal"
@@ -529,22 +864,45 @@ const MyListings = () => {
             label="OA Date"
             name="oaDate"
             type="date"
-            value={formData.oaDate}
+            value={
+              formData.oaDate && formData.oaDate !== "N/A"
+                ? formData.oaDate.split("T")[0]
+                : ""
+            }
             onChange={handleInputChange}
             fullWidth
             margin="normal"
             InputLabelProps={{ shrink: true }}
             disabled={modalLoading}
           />
-          <Typography>Mail Screenshots:</Typography>
-          <input
-            type="file"
-            name="mailScreenshot"
-            ref={fileInputRef}
-            onChange={handleInputChange}
-            disabled={modalLoading}
-            style={{ marginBottom: "16px" }}
-          />
+          {formData.openFor.includes("MTech") && (
+            <>
+              <Typography>Mail Screenshots:</Typography>
+              <input
+                multiple
+                type="file"
+                name="mailScreenshots"
+                ref={fileInputRef}
+                onChange={handleChange}
+                disabled={modalLoading}
+                style={{ marginBottom: "16px" }}
+              />
+            </>
+          )}
+          {formData.openFor.includes("MTech") && (
+            <>
+              <Typography>Job Description:</Typography>
+              <input
+                multiple
+                type="file"
+                name="jobDescriptions"
+                ref={fileInputjRef}
+                onChange={handleChange}
+                disabled={modalLoading}
+                style={{ marginBottom: "16px" }}
+              />
+            </>
+          )}
           <TextField
             label="Final Hiring Number"
             name="finalHiringNumber"
