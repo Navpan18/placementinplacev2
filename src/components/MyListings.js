@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { db } from "../firebase"; // Firestore instance
+import { db,auth} from "../firebase"; // Firestore instance
 import { useAuth } from "../AuthContext"; // To get current user
 
 import Zoom from "react-medium-image-zoom";
@@ -128,18 +128,25 @@ const [searchTerm, setSearchTerm] = useState("");
       console.error("Error fetching roles: ", error);
     }
   };
-
+const handleLogout = async () => {
+  try {
+    await auth.signOut();
+    navigate("/login");
+  } catch (err) {
+    console.error("Failed to log out", err);
+  }
+};
   // Function to fetch listings
   const fetchListings = useCallback(async () => {
     const urls = [
-      "https://script.googleusercontent.com/macros/echo?user_content_key=k0OG0JKOSzaLAFNDKHo7kMxs4KpStj32XEeeDX55g3nlcuZ8dDS7b9cL8__rBbxHrZrSO_NtYYxk0vtXtMn7lwryIG_07SfJm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnFZGphUdMR2lBu6FN-70S2eyuymZOB7U80U7I78BulIGKernFPceSJZ916Es_WZVjcuGBe8UjSabZMSJ69PShmBCP2NUJ7UDFA&lib=MPbF69BJGBErAUuGW4fwMgYuqugO6Dz5e",
-      // "https://script.googleusercontent.com/macros/echo?user_content_key=bbpYS90jTMG0EvBm7351gOw68Ts8jRKt9I9iV1HTHNmVbu3IzlgrBNJCn-4u0xcLKTWnnwQqR7XHkO69JJsYML9CuoNH4rIYm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnMsNHbV_FMlW5XaMA_x0t2RL3SIUtp-w2P01N7Q4fYk_vdwKKITucPozIuOZU1wNaeJMN7NvWwyS7sdFXaFoPUdOtaYSyHz01tz9Jw9Md8uu&lib=MBFphmX3Q7SOrOzYn9fGwm9RaTK-j2XsW",
-      // Add more URLs if needed
+      "https://script.google.com/macros/s/AKfycbwlidOJNbPWSAfYz0CVoVq7LpSOGF1yCuKnMSQmhlgyW7rgbt8H5MpxYDYpgDl-0mWm0w/exec",
+      "https://script.google.com/macros/s/AKfycbxi7Y04QmMeiPhz4MjajBmRxyj7DjjzaHiyecSXu2yKKP6Il8mfzButb7qITm-7MsepYA/exec",
     ];
 
     // Function to select a random URL from the array
     function getRandomUrl() {
       const randomIndex = Math.floor(Math.random() * urls.length);
+      console.log(randomIndex);
       return urls[randomIndex];
     }
 
@@ -152,7 +159,7 @@ const [searchTerm, setSearchTerm] = useState("");
       const userListings = data.filter(
         (listing) => listing.createdBy === currentUser.email
       );
-      setListings(data);
+      setListings(userListings);
       listings.map((listing) => console.log(listing));
       setLoading(false);
       console.log("listings", listings);
@@ -237,25 +244,25 @@ const [searchTerm, setSearchTerm] = useState("");
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (type === "checkbox") {
+    // Handle date input as string (e.g., "2024-10-24")
+    if (type === "date") {
+      setFormData({ ...formData, [name]: value }); // Set the date as a string
+    } else if (type === "checkbox") {
       setFormData((prevData) => {
         if (checked) {
           return { ...prevData, openFor: [...prevData.openFor, value] };
         } else {
           return {
             ...prevData,
-            openFor: prevData.openFor
-              .split(", ")
-              .filter((item) => item !== value),
+            openFor: prevData.openFor.filter((item) => item !== value),
           };
         }
       });
-    } else if (type === "file") {
-      setFormData({ ...formData, [name]: e.target.files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
+
 
   // Function to open the edit form and populate it with existing data
   const handleEditClick = (listing) => {
@@ -280,6 +287,8 @@ const [searchTerm, setSearchTerm] = useState("");
   // Handle form submission and updating both Firestore and Google Sheets
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    const normalizedPPTDate = formData.pptDate || "";
+    const normalizedOADate = formData.oaDate || "";
     // setModalLoading(true); // Show loading only on modal
     const mtechSelected = formData.openFor.includes("MTech");
     setModalLoading(true); // Show loading only on modal
@@ -345,8 +354,8 @@ const [searchTerm, setSearchTerm] = useState("");
         role: formData.role,
         hrDetails: formData.hrDetails,
         openFor: formData.openFor,
-        pptDate: formData.pptDate,
-        oaDate: formData.oaDate,
+        pptDate: normalizedPPTDate,
+        oaDate: normalizedOADate,
         mailScreenshots: mailScreenshotURLs.length
           ? mailScreenshotURLs
           : formData.mailScreenshots, // Update with new or existing URLs
@@ -355,6 +364,7 @@ const [searchTerm, setSearchTerm] = useState("");
           : formData.jobDescriptions, // Update with new or existing URLs
         finalHiringNumber: formData.finalHiringNumber,
         iitName: formData.iitName,
+        createdBy: currentUser.email,
       });
       setUploadProgress(60); // Update after image upload
 
@@ -368,8 +378,8 @@ const [searchTerm, setSearchTerm] = useState("");
       newFormData.append("role", formData.role);
       newFormData.append("hrDetails", formData.hrDetails);
       newFormData.append("openFor", formData.openFor); // Convert array to string
-      newFormData.append("pptDate", formData.pptDate);
-      newFormData.append("oaDate", formData.oaDate);
+      newFormData.append("pptDate", normalizedPPTDate);
+      newFormData.append("oaDate", normalizedOADate);
       newFormData.append(
         "mailScreenshots",
         mailScreenshotURLs.length
@@ -384,6 +394,7 @@ const [searchTerm, setSearchTerm] = useState("");
       );
       newFormData.append("finalHiringNumber", formData.finalHiringNumber);
       newFormData.append("iitName", formData.iitName);
+      newFormData.append("createdBy", currentUser.email);
 
       const response = await fetch(
         "https://script.google.com/macros/s/AKfycbxh7WJandPA6v4cNMCtY5ugBckhUL7UxldVPrR5g9zJMx7T_-8Rcp7gu8mBhwQpV3FxPg/exec",
@@ -523,8 +534,20 @@ const filteredListings = listings.filter((listing) =>
 );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh", // Full viewport height to center vertically
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
+
 
   return (
     <Container maxWidth="md">
@@ -563,6 +586,7 @@ const filteredListings = listings.filter((listing) =>
           <Button onClick={goToDashboard} variant="outlined" color="secondary">
             Back
           </Button>
+          <Button onClick={handleLogout} variant="outlined" color="error">LOG OUT</Button>
         </Box>
       </Box>
       <TextField
@@ -604,10 +628,10 @@ const filteredListings = listings.filter((listing) =>
                   <Typography>Open For: {listing.openFor || "N/A"}</Typography>
                   <Typography>
                     PPT Date:
-                    {listing.pptDate.split("T")[0] || "N/A"}
+                    {listing.pptDate || "N/A"}
                   </Typography>
                   <Typography>
-                    OA Date: {listing.oaDate.split("T")[0] || "N/A"}
+                    OA Date: {listing.oaDate || "N/A"}
                   </Typography>
 
                   <Typography>Mail Screenshots:</Typography>
@@ -866,7 +890,7 @@ const filteredListings = listings.filter((listing) =>
             type="date"
             value={
               formData.oaDate && formData.oaDate !== "N/A"
-                ? formData.oaDate.split("T")[0]
+                ? formData.oaDate
                 : ""
             }
             onChange={handleInputChange}

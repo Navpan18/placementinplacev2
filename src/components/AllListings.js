@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { auth } from "../firebase";
 import Modal from "react-modal"; // Import Modal component
 import {
   Container,
@@ -9,8 +10,10 @@ import {
   Card,
   CardContent,
   Grid,
+  CircularProgress, // Add CircularProgress for the loader
 } from "@mui/material";
 import axios from "axios"; // To fetch data from the Google Sheets URL
+import { useNavigate } from "react-router-dom";
 
 // Modal styling
 const customModalStyles = {
@@ -31,21 +34,35 @@ const customModalStyles = {
 };
 
 const AllListings = () => {
+  const navigate = useNavigate();
   const [listings, setListings] = useState([]); // All listings
   const [filteredListings, setFilteredListings] = useState([]); // Filtered listings based on search
   const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
   const [selectedListing, setSelectedListing] = useState(null); // The selected IIT listing for the modal
   const [searchTerm, setSearchTerm] = useState(""); // For search functionality
-  const [sortOrder, setSortOrder] = useState("asc"); // Default sort order (ascending)
+  const [loading, setLoading] = useState(true); // Loading state to track the fetching process
+
+  const goToDashboard = () => {
+    navigate("/dashboard");
+  };
+  const goToMyListings = () => {
+    navigate("/mylistings");
+  };
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigate("/login");
+    } catch (err) {
+      console.error("Failed to log out", err);
+    }
+  };
 
   // Fetch all listings from Google Sheets
   const fetchListings = async () => {
-
+    setLoading(true); // Start loading
     const urls = [
-      "https://script.googleusercontent.com/macros/echo?user_content_key=KBbXoocOVTg92Cy_WtNd-k2v6fnGSbb93kYkn8rw0wS9WAFVn3vicb1W5dltYNlDLKttURPQeKbMsTZ1vouI4sQuQCt-x_8Wm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnI3deoCTN4PRw2fdF2Rhkbrx6osBy5wmGp3TkkDozP6cas-Os-DaSndgIuCxIBSUjR2DXr2yZ3n60543KoPsCuB6dXWPQNKe3tz9Jw9Md8uu&lib=MPbF69BJGBErAUuGW4fwMgYuqugO6Dz5e",
-      "https://script.googleusercontent.com/macros/echo?user_content_key=bbpYS90jTMG0EvBm7351gOw68Ts8jRKt9I9iV1HTHNmVbu3IzlgrBNJCn-4u0xcLKTWnnwQqR7XHkO69JJsYML9CuoNH4rIYm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnMsNHbV_FMlW5XaMA_x0t2RL3SIUtp-w2P01N7Q4fYk_vdwKKITucPozIuOZU1wNaeJMN7NvWwyS7sdFXaFoPUdOtaYSyHz01tz9Jw9Md8uu&lib=MBFphmX3Q7SOrOzYn9fGwm9RaTK-j2XsW",
-      // "https://script.googleusercontent.com/macros/echo?user_content_key=KEY3",
-      // Add more URLs as needed
+      "https://script.google.com/macros/s/AKfycbwlidOJNbPWSAfYz0CVoVq7LpSOGF1yCuKnMSQmhlgyW7rgbt8H5MpxYDYpgDl-0mWm0w/exec",
+      "https://script.google.com/macros/s/AKfycbxi7Y04QmMeiPhz4MjajBmRxyj7DjjzaHiyecSXu2yKKP6Il8mfzButb7qITm-7MsepYA/exec",
     ];
 
     // Function to select a random index from the array
@@ -59,24 +76,44 @@ const AllListings = () => {
       const response = await axios.get(scriptUrl);
       const data = response.data;
 
-      // Group listings by company name
-      const grouped = data.reduce((acc, listing) => {
-        const companyName = listing.companyname.toLowerCase();
-        if (!acc[companyName]) {
-          acc[companyName] = {
-            companyName: listing.companyname,
-            iits: [],
-          };
-        }
-        acc[companyName].iits.push(listing);
-        return acc;
-      }, {});
+      // Group listings by unique company name and role combination
+      const uniqueListings = [];
+      const seen = new Set();
 
-      const groupedArray = Object.values(grouped); // Convert the grouped object to an array
-      setListings(groupedArray);
-      setFilteredListings(groupedArray); // Initially, all listings are displayed
+      data.forEach((listing) => {
+        const uniqueKey = `${listing.companyName.toLowerCase()}-${listing.role.toLowerCase()}`;
+        if (!seen.has(uniqueKey)) {
+          seen.add(uniqueKey);
+          uniqueListings.push({
+            companyName: listing.companyName,
+            role: listing.role,
+            iits: [listing],
+          });
+        } else {
+          // If already seen, just push the IIT to the existing company-role group
+          const existingGroup = uniqueListings.find(
+            (group) =>
+              group.companyName.toLowerCase() ===
+                listing.companyName.toLowerCase() &&
+              group.role.toLowerCase() === listing.role.toLowerCase()
+          );
+          existingGroup.iits.push(listing);
+        }
+      });
+
+      // Sort by companyName - role in ascending order
+      const sortedListings = uniqueListings.sort((a, b) => {
+        const keyA = `${a.companyName.toLowerCase()}-${a.role.toLowerCase()}`;
+        const keyB = `${b.companyName.toLowerCase()}-${b.role.toLowerCase()}`;
+        return keyA.localeCompare(keyB);
+      });
+
+      setListings(sortedListings);
+      setFilteredListings(sortedListings); // Initially, all listings are displayed
     } catch (error) {
       console.error("Error fetching listings:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -111,21 +148,40 @@ const AllListings = () => {
     }
   };
 
-  // Sorting function using sortOrder
-  const handleSort = (field) => {
-    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-    setSortOrder(newSortOrder);
+  // Function to split and render job description buttons
+  const renderJobDescriptions = (jobDescriptionUrls) => {
+    const urls =
+      jobDescriptionUrls[0] === "h" ? jobDescriptionUrls.split(",") : [];
+    if (urls.length === 0 || urls[0] === "") return "N/A";
+    return urls.map((url, index) => (
+      <Button
+        key={index}
+        variant="contained"
+        color="primary"
+        sx={{ mb: 1, mr: 1 }}
+        onClick={() => window.open(url.trim(), "_blank")}
+      >
+        View Job Description {index + 1}
+      </Button>
+    ));
+  };
 
-    const sortedListings = [...filteredListings].sort((a, b) => {
-      const fieldA = a[field] ?? ""; // Use optional chaining in case the field is undefined
-      const fieldB = b[field] ?? "";
-      if (newSortOrder === "asc") {
-        return fieldA > fieldB ? 1 : -1;
-      } else {
-        return fieldA < fieldB ? 1 : -1;
-      }
-    });
-    setFilteredListings(sortedListings);
+  // Function to split and render mail screenshot buttons
+  const renderMailScreenshots = (mailScreenshotUrls) => {
+    const urls =
+      mailScreenshotUrls[0] === "h" ? mailScreenshotUrls.split(",") : [];
+    if (urls.length === 0 || urls[0] === "") return "N/A";
+    return urls.map((url, index) => (
+      <Button
+        key={index}
+        variant="contained"
+        color="secondary"
+        sx={{ mb: 1, mr: 1 }}
+        onClick={() => window.open(url.trim(), "_blank")}
+      >
+        View Mail Screenshot {index + 1}
+      </Button>
+    ));
   };
 
   return (
@@ -134,6 +190,25 @@ const AllListings = () => {
         <Typography variant="h4" gutterBottom>
           All Company Listings
         </Typography>
+        <Button
+          onClick={goToMyListings}
+          variant="contained"
+          color="primary"
+          sx={{ mr: 2 }}
+        >
+          My Listings
+        </Button>
+        <Button
+          onClick={goToDashboard}
+          variant="contained"
+          color="primary"
+          sx={{ mr: 2 }}
+        >
+          DashBoard
+        </Button>
+        <Button onClick={handleLogout} variant="outlined" color="error">
+          Log Out
+        </Button>
 
         {/* Search Bar */}
         <TextField
@@ -145,72 +220,58 @@ const AllListings = () => {
           onChange={handleSearchChange}
         />
 
-        {/* Sort options */}
-        <Box sx={{ my: 2 }}>
-          <Typography variant="h6">Sort by:</Typography>
-          <Button
-            onClick={() => handleSort("companyName")}
-            variant="contained"
-            sx={{ mr: 1 }}
-          >
-            Company Name
-          </Button>
-          <Button
-            onClick={() => handleSort("pptdate")}
-            variant="contained"
-            sx={{ mr: 1 }}
-          >
-            PPT Date
-          </Button>
-          <Button
-            onClick={() => handleSort("oadate")}
-            variant="contained"
-            sx={{ mr: 1 }}
-          >
-            OA Date
-          </Button>
-          <Button onClick={() => handleSort("stipend")} variant="contained">
-            Stipend
-          </Button>
-        </Box>
-
-        {/* Listings Display */}
-        {filteredListings.length > 0 ? (
-          <Grid container spacing={3}>
-            {filteredListings.map((group) => (
-              <Grid item xs={12} sm={6} md={4} key={group.companyName}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {group.companyName}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      IITs that have listed this company:
-                    </Typography>
-                    <Box sx={{ mt: 2 }}>
-                      {group.iits.map((listing) => (
-                        <Button
-                          key={listing.documentid}
-                          variant="contained"
-                          color={
-                            listing.openfor.includes("MTech")
-                              ? "success"
-                              : "error"
-                          }
-                          sx={{ mb: 1, mr: 1 }}
-                          onClick={() => openModal(listing)}
-                        >
-                          {listing.iitname}
-                        </Button>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+        {/* Display loader when loading */}
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <Typography>No listings found.</Typography>
+          <>
+            {/* Listings Display */}
+            {filteredListings.length > 0 ? (
+              <Grid container spacing={3}>
+                {filteredListings.map((group) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    key={group.companyName + group.role}
+                  >
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {group.companyName + " - " + group.role}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          IITs that have listed this company:
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          {group.iits.map((listing) => (
+                            <Button
+                              key={listing.documentId}
+                              variant="contained"
+                              color={
+                                listing.openFor.includes("MTech")
+                                  ? "success"
+                                  : "error"
+                              }
+                              sx={{ mb: 1, mr: 1 }}
+                              onClick={() => openModal(listing)}
+                            >
+                              {listing.iitName}
+                            </Button>
+                          ))}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography>No listings found.</Typography>
+            )}
+          </>
         )}
 
         {/* Modal to show IIT-specific details */}
@@ -218,14 +279,15 @@ const AllListings = () => {
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
           style={customModalStyles}
+          ariaHideApp={false}
         >
           {selectedListing && (
             <Box sx={{ p: 2 }}>
               <Typography variant="h5" gutterBottom>
-                {selectedListing.companyname} - {selectedListing.iitname}
+                {selectedListing.companyName} - {selectedListing.iitName}
               </Typography>
               <Typography>
-                <strong>Job Type:</strong> {selectedListing.jobtype}
+                <strong>Job Type:</strong> {selectedListing.jobType}
               </Typography>
               <Typography>
                 <strong>Stipend:</strong> {selectedListing.stipend}
@@ -235,37 +297,39 @@ const AllListings = () => {
               </Typography>
               <Typography>
                 <strong>HR Details:</strong>{" "}
-                {selectedListing.hrdetails || "N/A"}
+                {selectedListing.hrDetails || "N/A"}
               </Typography>
               <Typography>
-                <strong>Open For:</strong> {selectedListing.openfor}
+                <strong>Open For:</strong> {selectedListing.openFor}
               </Typography>
               <Typography>
                 <strong>PPT Date:</strong>{" "}
-                {new Date(selectedListing.pptdate).toLocaleDateString()}
+                {selectedListing.pptDate.split("T")[0]}
               </Typography>
               <Typography>
-                <strong>OA Date:</strong>{" "}
-                {new Date(selectedListing.oadate).toLocaleDateString()}
+                <strong>OA Date:</strong> {selectedListing.oaDate.split("T")[0]}
               </Typography>
               <Typography>
                 <strong>Final Hiring Number:</strong>{" "}
-                {selectedListing.finalhiringnumber}
+                {selectedListing.finalHiringNumber}
               </Typography>
-              <Typography>
-                <strong>Mail Screenshot:</strong>{" "}
-                {selectedListing.mailscreenshot ? (
-                  <a
-                    href={selectedListing.mailscreenshot}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View Screenshot
-                  </a>
-                ) : (
-                  "N/A"
-                )}
+
+              <Typography variant="h6" gutterBottom>
+                Job Descriptions:{" "}
+                {renderJobDescriptions(selectedListing.jobDescriptions) ===
+                "N/A"
+                  ? "N/A"
+                  : renderJobDescriptions(selectedListing.jobDescriptions)}
               </Typography>
+
+              <Typography variant="h6" gutterBottom>
+                Mail Screenshots:{" "}
+                {renderMailScreenshots(selectedListing.mailScreenshots) ===
+                "N/A"
+                  ? "N/A"
+                  : renderMailScreenshots(selectedListing.mailScreenshots)}
+              </Typography>
+
               <Typography>
                 <strong>Created At:</strong>{" "}
                 {new Date(selectedListing.timestamp).toLocaleDateString()}

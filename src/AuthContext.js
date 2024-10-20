@@ -1,7 +1,11 @@
 // src/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "./firebase";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 
 const AuthContext = createContext();
 
@@ -19,6 +23,11 @@ export const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
+  // Logout function
+  const logout = () => {
+    return signOut(auth);
+  };
+
   // Monitor authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -31,11 +40,12 @@ export const AuthProvider = ({ children }) => {
   const value = {
     currentUser,
     login,
+    logout, // Add logout to the context
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {!loading && children} {/* Render children only when not loading */}
     </AuthContext.Provider>
   );
 };
