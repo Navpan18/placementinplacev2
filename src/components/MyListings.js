@@ -536,15 +536,20 @@ const MyListings = () => {
             InputLabelProps={{ shrink: true }}
             disabled={modalLoading}
           />
-          <Typography>Mail Screenshots:</Typography>
-          <input
-            type="file"
-            name="mailScreenshot"
-            ref={fileInputRef}
-            onChange={handleInputChange}
-            disabled={modalLoading}
-            style={{ marginBottom: "16px" }}
-          />
+          {/* Conditionally show mail screenshots input when MTech is selected */}
+{formData.openFor.includes("MTech") && (
+  <>
+    <Typography>Mail Screenshots:</Typography>
+    <input
+      type="file"
+      name="mailScreenshot"
+      ref={fileInputRef}
+      onChange={handleInputChange}
+      disabled={modalLoading}
+      style={{ marginBottom: "16px" }}
+    />
+  </>
+)}
           <TextField
             label="Final Hiring Number"
             name="finalHiringNumber"
