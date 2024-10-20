@@ -152,7 +152,7 @@ const [searchTerm, setSearchTerm] = useState("");
       const userListings = data.filter(
         (listing) => listing.createdBy === currentUser.email
       );
-      setListings(data);
+      setListings(userListings);
       listings.map((listing) => console.log(listing));
       setLoading(false);
       console.log("listings", listings);
