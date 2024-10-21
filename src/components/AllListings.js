@@ -244,7 +244,7 @@ const AllListings = () => {
                           {group.companyName + " - " + group.role}
                         </Typography>
                         <Typography variant="body2" color="textSecondary">
-                          IITs that have listed this company:
+                          Colleges that have listed this company:
                         </Typography>
                         <Box sx={{ mt: 2 }}>
                           {group.iits.map((listing) => (
@@ -296,7 +296,7 @@ const AllListings = () => {
                 <strong>Role:</strong> {selectedListing.role}
               </Typography>
               <Typography>
-                <strong>HR Details:</strong>{" "}
+                <strong>Questions Link:</strong>{" "}
                 {selectedListing.hrDetails || "N/A"}
               </Typography>
               <Typography>
