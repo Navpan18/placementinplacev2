@@ -242,27 +242,34 @@ const handleLogout = async () => {
 
   // Handle form input change for editing
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const { name, value, type, checked } = e.target;
 
-    // Handle date input as string (e.g., "2024-10-24")
-    if (type === "date") {
-      setFormData({ ...formData, [name]: value }); // Set the date as a string
-    } else if (type === "checkbox") {
-      setFormData((prevData) => {
-        if (checked) {
-          return { ...prevData, openFor: [...prevData.openFor, value] };
-        } else {
-          return {
-            ...prevData,
-            openFor: prevData.openFor.filter((item) => item !== value),
-          };
-        }
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
+  // Handle date input as string (e.g., "2024-10-24")
+  if (type === "date") {
+    setFormData({ ...formData, [name]: value }); // Set the date as a string
+  } 
+  // Handle checkbox input
+  else if (type === "checkbox") {
+    setFormData((prevData) => {
+      const openForArray = Array.isArray(prevData.openFor) ? prevData.openFor : [];
 
+      if (checked) {
+        // Add value to array if checked
+        return { ...prevData, openFor: [...openForArray, value] };
+      } else {
+        // Remove value from array if unchecked
+        return {
+          ...prevData,
+          openFor: openForArray.filter((item) => item !== value),
+        };
+      }
+    });
+  } 
+  // Handle other input types
+  else {
+    setFormData({ ...formData, [name]: value });
+  }
+};
 
   // Function to open the edit form and populate it with existing data
   const handleEditClick = (listing) => {
