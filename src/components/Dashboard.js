@@ -497,7 +497,7 @@ const Dashboard = () => {
 
         <FormControl fullWidth margin="normal">
           <TextField
-            label="HR Details (Optional)"
+            label="Question link"
             name="hrDetails"
             value={formData.hrDetails}
             onChange={handleChange}
