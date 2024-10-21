@@ -630,7 +630,7 @@ const filteredListings = listings.filter((listing) =>
                   <Typography>Stipend: {listing.stipend}</Typography>
                   <Typography>Role: {listing.role}</Typography>
                   <Typography>
-                    HR Details: {listing.hrDetails || "N/A"}
+                    Questions Link: {listing.hrDetails || "N/A"}
                   </Typography>
                   <Typography>Open For: {listing.openFor || "N/A"}</Typography>
                   <Typography>
@@ -676,7 +676,7 @@ const filteredListings = listings.filter((listing) =>
                   <Typography>
                     Final Hiring Number: {listing.finalHiringNumber || "N/A"}
                   </Typography>
-                  <Typography>IIT Name: {listing.iitName}</Typography>
+                  <Typography>College Name: {listing.iitName}</Typography>
                 </CardContent>
                 <CardActions>
                   <Button
@@ -825,7 +825,7 @@ const filteredListings = listings.filter((listing) =>
             disabled={modalLoading}
           />
           <TextField
-            label="HR Details"
+            label="Questions Link"
             name="hrDetails"
             value={formData.hrDetails}
             onChange={handleInputChange}
