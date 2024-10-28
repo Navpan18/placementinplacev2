@@ -16,11 +16,13 @@ import {
   Checkbox,
   FormGroup,
   Autocomplete,
+  Paper,
   Modal,
   LinearProgress,
   CircularProgress,
 } from "@mui/material";
 import { collection, getDocs, doc, setDoc, addDoc } from "firebase/firestore";
+import axios from "axios";
 
 let submissionQueue = [];
 let isSubmitting = false;
@@ -61,12 +63,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchCompanyNames = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "companyNames"));
-        const companies = [];
-        querySnapshot.forEach((doc) => {
-          companies.push({ label: doc.data().Name });
-        });
-        setCompanyOptions(companies);
+        const scriptUrl =
+        "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
+      const response = await axios.get(scriptUrl);
+      const data = response.data;
+      console.log(data);
+      const companies = data.map((doc) => ({
+        label: doc.Name,
+      }));
+      setCompanyOptions(companies);
       } catch (error) {
         console.error("Error fetching company names: ", error);
       }
@@ -483,6 +488,25 @@ const Dashboard = () => {
         }}
       />
     )}
+    PaperComponent={(props) => (
+      <Paper
+        {...props}
+        sx={{
+          backgroundColor:"black",
+          borderColor: "#bb86fc",
+          color:"white",
+          fontWeight:"700"
+        }}
+      />
+    )}
+    sx={{
+      "& .MuiAutocomplete-paper": {
+        backgroundColor: "black",
+        color: "white",
+        borderColor: "purple",
+        fontWeight: "700",
+      },
+    }}
   />
 
   <Button
@@ -525,18 +549,37 @@ const Dashboard = () => {
         sx={{
           "& .MuiOutlinedInput-root": {
             "& fieldset": {
-              borderColor: "white",
+              borderColor: "#bb86fc",
             },
             "&:hover fieldset": {
-              borderColor: "white",
+              borderColor: "#bb86fc",
             },
             "&.Mui-focused fieldset": {
-              borderColor: "white",
+              borderColor: "#bb86fc",
             },
           },
         }}
       />
     )}
+    PaperComponent={(props) => (
+      <Paper
+        {...props}
+        sx={{
+          backgroundColor:"black",
+          borderColor: "#bb86fc",
+          color:"white",
+          fontWeight:"700"
+        }}
+      />
+    )}
+    sx={{
+      "& .MuiAutocomplete-paper": {
+        backgroundColor: "black",
+        color: "white",
+        borderColor: "purple",
+        fontWeight: "700",
+      },
+    }}
   />
 
   <Button
@@ -720,12 +763,16 @@ const Dashboard = () => {
       onChange={handleChange}
       InputProps={{
         style: { color: "white" },
+        inputProps: {
+          onClick: (event) => event.target.showPicker && event.target.showPicker()
+        },
         sx: {
           "& .MuiInputAdornment-root .MuiSvgIcon-root": {
             color: "#9f6ae1", // Calendar icon color
           },
         },
       }}
+     
       sx={{
         "& .MuiOutlinedInput-root": {
           "& fieldset": {
@@ -739,6 +786,7 @@ const Dashboard = () => {
           },
         },
       }}
+      
     />
   </FormControl>
 
@@ -750,8 +798,12 @@ const Dashboard = () => {
       InputLabelProps={{ shrink: true, style: { color: "white" } }}
       value={formData.oaDate}
       onChange={handleChange}
+      
       InputProps={{
         style: { color: "white" },
+        inputProps: {
+          onClick: (event) => event.target.showPicker && event.target.showPicker()
+        }
       }}
       sx={{
         "& .MuiOutlinedInput-root": {
