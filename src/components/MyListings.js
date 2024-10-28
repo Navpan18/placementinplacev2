@@ -64,6 +64,8 @@ const MyListings = () => {
   const { currentUser } = useAuth(); // Get the current logged-in user
   const [listings, setListings] = useState([]);
   const [refreshData, setRefreshData] = useState(false); // To track when refresh is needed
+const [loadingCompany, setLoadingCompany] = useState(false);
+const [loadingRole, setLoadingRole] = useState(false);
 
   const [loading, setLoading] = useState(true); // General page loading
   const [modalLoading, setModalLoading] = useState(false); // Modal-specific loading
@@ -504,6 +506,7 @@ const MyListings = () => {
 
   const handleAddCompany = async () => {
     if (newCompanyName.trim()) {
+      setLoadingCompany(true);
       try {
         // Add the new company to Firestore
         const newcompdet = new FormData();
@@ -521,7 +524,10 @@ const MyListings = () => {
             method: "GET",
           }
         );
-        setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
+        setFormData((prevData) => ({
+          ...prevData,
+          companyName: newCompanyName,
+        }));
         // Clear the input and close the modal
         setNewCompanyName("");
         setModalOpen(false);
@@ -530,12 +536,15 @@ const MyListings = () => {
         // Call the function that fetches company names
       } catch (error) {
         console.error("Error adding company name:", error);
+      } finally {
+        setLoadingCompany(false); // Stop loader
       }
     }
   };
 
   const handleAddRole = async () => {
     if (newRoleName.trim()) {
+      setLoadingRole(true);
       try {
         // Add the new role to Firestore
         const newroledet = new FormData();
@@ -562,6 +571,8 @@ const MyListings = () => {
         setRefreshData(true); // Call the function that fetches role names
       } catch (error) {
         console.error("Error adding role:", error);
+      } finally {
+        setLoadingRole(false); // Stop loader
       }
     }
   };
@@ -626,7 +637,9 @@ const MyListings = () => {
       <Box
         sx={{ mt: 4, mb: 4, display: "flex", justifyContent: "space-between" }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>My Listings</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 800 }}>
+          My Listings
+        </Typography>
         <Box>
           <Button
             onClick={goToAllListings}
@@ -643,33 +656,43 @@ const MyListings = () => {
           >
             All Listings
           </Button>
-          <Button onClick={goToDashboard} variant="outlined" sx={{
-            mr: 2,
-            color: "white",
-            borderColor: "white",
-            "&:hover": {
-              backgroundColor: "#9f6ae1",
+          <Button
+            onClick={goToDashboard}
+            variant="outlined"
+            sx={{
+              mr: 2,
               color: "white",
-              borderColor: "#9f6ae1",
-            },
-          }}>
+              borderColor: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+                color: "white",
+                borderColor: "#9f6ae1",
+              },
+            }}
+          >
             Back
           </Button>
-          <Button onClick={handleLogout} variant="outlined" sx={{
-            mr: 2,
-            color: "white",
-            backgroundColor: "#c22f2f",
-            borderColor: "#c22f2f",
-            fontWeight: "600",
-            "&:hover": {
-              backgroundColor: "#bd0606",
+          <Button
+            onClick={handleLogout}
+            variant="outlined"
+            sx={{
+              mr: 2,
               color: "white",
-              borderColor: "re#bd0606d",
-            },
-          }} >LOG OUT</Button>
+              backgroundColor: "#c22f2f",
+              borderColor: "#c22f2f",
+              fontWeight: "600",
+              "&:hover": {
+                backgroundColor: "#bd0606",
+                color: "white",
+                borderColor: "re#bd0606d",
+              },
+            }}
+          >
+            LOG OUT
+          </Button>
         </Box>
       </Box>
-      {!modalIsOpen &&
+      {!modalIsOpen && (
         <TextField
           fullWidth
           label="Search by Company Name"
@@ -693,7 +716,8 @@ const MyListings = () => {
               },
             },
           }}
-        />}
+        />
+      )}
 
       {listings.length > 0 ? (
         <Box
@@ -722,24 +746,40 @@ const MyListings = () => {
                   .includes(searchTerm.toLowerCase())
               )
               .map((listing) => (
-                <Card key={listing.documentId} sx={{
-                  padding: 2, backgroundColor: "black", // Black background for cards
-                  color: "white", // White text color
-                  justifyContent: "center", alignItems: "center",
-                  width: "20rem",
-                  transition: "transform 0.3s ease-in-out", // Smooth zoom effect
-                  "&:hover": {
-                    transform: "scale(1.03)", // Slight zoom on hover
-                  },
-                }}>
+                <Card
+                  key={listing.documentId}
+                  sx={{
+                    padding: 2,
+                    backgroundColor: "black", // Black background for cards
+                    color: "white", // White text color
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "20rem",
+                    transition: "transform 0.3s ease-in-out", // Smooth zoom effect
+                    "&:hover": {
+                      transform: "scale(1.03)", // Slight zoom on hover
+                    },
+                  }}
+                >
                   <CardContent>
-                    <Typography variant="h6"
-                      sx={{ color: "#9fa6e1", fontWeight: "700" }}  >{listing.companyName}</Typography>
-                    <Typography><strong>Job Type:</strong>  {listing.jobType}</Typography>
-                    <Typography><strong>Stipend:</strong>  {listing.stipend}</Typography>
-                    <Typography><strong>Role:</strong>  {listing.role}</Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: "#9fa6e1", fontWeight: "700" }}
+                    >
+                      {listing.companyName}
+                    </Typography>
                     <Typography>
-                      <strong>Questions Link:</strong>{" "} {listing.hrDetails[0] != "N" ? (
+                      <strong>Job Type:</strong> {listing.jobType}
+                    </Typography>
+                    <Typography>
+                      <strong>Stipend:</strong> {listing.stipend}
+                    </Typography>
+                    <Typography>
+                      <strong>Role:</strong> {listing.role}
+                    </Typography>
+                    <Typography>
+                      <strong>Questions Link:</strong>{" "}
+                      {listing.hrDetails[0] != "N" ? (
                         <Button
                           variant="contained"
                           sx={{
@@ -751,7 +791,13 @@ const MyListings = () => {
                             textTransform: "none", // Keep the button text in normal case
                             ml: 1, // Optional margin for spacing
                           }}
-                          onClick={() => window.open(listing.hrDetails, "_blank", "noopener,noreferrer")}
+                          onClick={() =>
+                            window.open(
+                              listing.hrDetails,
+                              "_blank",
+                              "noopener,noreferrer"
+                            )
+                          }
                         >
                           Open Link
                         </Button>
@@ -760,23 +806,22 @@ const MyListings = () => {
                       )}
                     </Typography>
                     <Typography>
-                      <strong>Open For: </strong>{listing.openFor || "N/A"}</Typography>
+                      <strong>Open For: </strong>
+                      {listing.openFor || "N/A"}
+                    </Typography>
                     <Typography>
-                      <strong>PPT Date:</strong>{" "}
-                      {listing.pptDate || "N/A"}
+                      <strong>PPT Date:</strong> {listing.pptDate || "N/A"}
                     </Typography>
                     <Typography>
                       <strong>OA Date:</strong> {listing.oaDate || "N/A"}
                     </Typography>
-
-
 
                     <Typography sx={{ mr: 1 }}>
                       <strong>Mail Screenshots:</strong>
                     </Typography>
 
                     {listing.mailScreenshots &&
-                      listing.mailScreenshots.split(",")[0][0] === "h" ? (
+                    listing.mailScreenshots.split(",")[0][0] === "h" ? (
                       listing.mailScreenshots.split(",").map((url, index) => (
                         <Button
                           key={index}
@@ -799,12 +844,11 @@ const MyListings = () => {
                       <span style={{ color: "white" }}>N/A</span>
                     )}
 
-
                     <Typography sx={{ mr: 1 }}>
                       <strong>Job Description URLs:</strong>
                     </Typography>
                     {listing.jobDescriptions &&
-                      listing.jobDescriptions.split(",")[0][0] === "h" ? (
+                    listing.jobDescriptions.split(",")[0][0] === "h" ? (
                       listing.jobDescriptions.split(",").map((url, index) => (
                         <Button
                           key={index}
@@ -832,7 +876,9 @@ const MyListings = () => {
                       {listing.finalHiringNumber || "N/A"}
                     </Typography>
                     <Typography>
-                      <strong>College Name: </strong>{listing.iitName.toUpperCase()}</Typography>
+                      <strong>College Name: </strong>
+                      {listing.iitName.toUpperCase()}
+                    </Typography>
                   </CardContent>
                   <CardActions>
                     <Button
@@ -898,7 +944,25 @@ const MyListings = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddCompany}>Add Company</Button>
+          <Button
+            variant="contained"
+            sx={{
+              mt: 2,
+              backgroundColor: "#bb86fc",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+              },
+            }}
+            onClick={handleAddCompany}
+            disabled={loadingCompany} // Disable button when loading
+          >
+            {loadingCompany ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : (
+              "Add Company"
+            )}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -914,7 +978,25 @@ const MyListings = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRoleModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddRole}>Add Role</Button>
+          <Button
+            variant="contained"
+            sx={{
+              mt: 2,
+              backgroundColor: "#bb86fc",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+              },
+            }}
+            onClick={handleAddRole}
+            disabled={loadingRole} // Disable button when loading
+          >
+            {loadingRole ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : (
+              "Add Role"
+            )}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -932,7 +1014,6 @@ const MyListings = () => {
             color: "white", // White text color
             borderRadius: "10px", // Optional rounded corners
             padding: "20px", // Padding for better layout
-
           },
           overlay: {
             backgroundColor: "rgba(0, 0, 0, 0.9)", // Dark overlay for contrast
@@ -942,8 +1023,12 @@ const MyListings = () => {
           },
         }}
         ariaHideApp={false}
-      ><Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Typography variant="h5" sx={{ color: "white", marginBottom: 2, fontWeight: "700" }}>
+      >
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Typography
+            variant="h5"
+            sx={{ color: "white", marginBottom: 2, fontWeight: "700" }}
+          >
             Edit Listing
           </Typography>
         </Box>
@@ -980,10 +1065,10 @@ const MyListings = () => {
               <Paper
                 {...props}
                 sx={{
-                  backgroundColor:"black",
+                  backgroundColor: "black",
                   borderColor: "#bb86fc",
-                  color:"white",
-                  fontWeight:"700"
+                  color: "white",
+                  fontWeight: "700",
                 }}
               />
             )}
@@ -1043,10 +1128,10 @@ const MyListings = () => {
               <Paper
                 {...props}
                 sx={{
-                  backgroundColor:"black",
+                  backgroundColor: "black",
                   borderColor: "#bb86fc",
-                  color:"white",
-                  fontWeight:"700"
+                  color: "white",
+                  fontWeight: "700",
                 }}
               />
             )}
@@ -1086,21 +1171,31 @@ const MyListings = () => {
             >
               <FormControlLabel
                 value="Intern"
-                control={<Radio sx={{
-                  color: "white", "&.Mui-checked": {
-                    color: "#bb86fc", // Purple when checked
-                  },
-                }} />}
+                control={
+                  <Radio
+                    sx={{
+                      color: "white",
+                      "&.Mui-checked": {
+                        color: "#bb86fc", // Purple when checked
+                      },
+                    }}
+                  />
+                }
                 label="Intern"
                 sx={{ color: "white" }}
               />
               <FormControlLabel
                 value="FTE"
-                control={<Radio sx={{
-                  color: "white", "&.Mui-checked": {
-                    color: "#bb86fc", // Purple when checked
-                  },
-                }} />}
+                control={
+                  <Radio
+                    sx={{
+                      color: "white",
+                      "&.Mui-checked": {
+                        color: "#bb86fc", // Purple when checked
+                      },
+                    }}
+                  />
+                }
                 label="FTE"
                 sx={{ color: "white" }}
               />
@@ -1163,7 +1258,8 @@ const MyListings = () => {
                     onChange={handleInputChange}
                     disabled={modalLoading}
                     sx={{
-                      color: "white", "&.Mui-checked": {
+                      color: "white",
+                      "&.Mui-checked": {
                         color: "#bb86fc", // Purple when checked
                       },
                     }}
@@ -1181,7 +1277,8 @@ const MyListings = () => {
                     onChange={handleInputChange}
                     disabled={modalLoading}
                     sx={{
-                      color: "white", "&.Mui-checked": {
+                      color: "white",
+                      "&.Mui-checked": {
                         color: "#bb86fc", // Purple when checked
                       },
                     }}
@@ -1199,7 +1296,8 @@ const MyListings = () => {
                     onChange={handleInputChange}
                     disabled={modalLoading}
                     sx={{
-                      color: "white", "&.Mui-checked": {
+                      color: "white",
+                      "&.Mui-checked": {
                         color: "#bb86fc", // Purple when checked
                       },
                     }}
@@ -1235,12 +1333,13 @@ const MyListings = () => {
                 "&:hover fieldset": {
                   borderColor: "#bb86fc",
                 },
-              }
+              },
             }}
             InputProps={{
               inputProps: {
-                onClick: (event) => event.target.showPicker && event.target.showPicker()
-              }
+                onClick: (event) =>
+                  event.target.showPicker && event.target.showPicker(),
+              },
             }}
           />
           <TextField
@@ -1271,8 +1370,9 @@ const MyListings = () => {
             }}
             InputProps={{
               inputProps: {
-                onClick: (event) => event.target.showPicker && event.target.showPicker()
-              }
+                onClick: (event) =>
+                  event.target.showPicker && event.target.showPicker(),
+              },
             }}
           />
 

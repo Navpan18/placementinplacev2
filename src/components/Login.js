@@ -1,24 +1,38 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import { TextField, Button, Container, Typography, Box, Alert } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Show loader
+    setError(""); // Clear previous error
+
     try {
       await login(email, password);
       navigate("/dashboard"); // Redirect to the dashboard after successful login
     } catch (err) {
       setError("Failed to log in: " + err.message);
     }
+
+    setLoading(false); // Hide loader after login attempt
   };
 
   return (
@@ -34,14 +48,19 @@ const Login = () => {
           variant="h4"
           component="h1"
           gutterBottom
-          sx={{ fontWeight:"700", color: "white" }} // Make heading text color white
+          sx={{ fontWeight: "700", color: "white" }}
         >
           Login
         </Typography>
         {error && (
           <Alert
             severity="error"
-            sx={{ width: "100%", mb: 2, color: "white", backgroundColor: "#b00020" }} // White text for error message
+            sx={{
+              width: "100%",
+              mb: 2,
+              color: "white",
+              backgroundColor: "#b00020",
+            }}
           >
             {error}
           </Alert>
@@ -55,20 +74,20 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            InputLabelProps={{ style: { color: "white" } }} // White color for label
+            InputLabelProps={{ style: { color: "white" } }}
             InputProps={{
-              style: { color: "white" }, // White color for input text
+              style: { color: "white" },
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "white", // White outline color
+                  borderColor: "white",
                 },
                 "&:hover fieldset": {
-                  borderColor: "white", // White outline color on hover
+                  borderColor: "white",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "white", // White outline color when focused
+                  borderColor: "white",
                 },
               },
             }}
@@ -81,20 +100,20 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            InputLabelProps={{ style: { color: "white" } }} // White color for label
+            InputLabelProps={{ style: { color: "white" } }}
             InputProps={{
-              style: { color: "white" }, // White color for input text
+              style: { color: "white" },
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "white", // White outline color
+                  borderColor: "white",
                 },
                 "&:hover fieldset": {
-                  borderColor: "white", // White outline color on hover
+                  borderColor: "white",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "white", // White outline color when focused
+                  borderColor: "white",
                 },
               },
             }}
@@ -103,17 +122,22 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading} // Disable button when loading
             sx={{
               mt: 2,
               color: "white",
-              fontWeight:"600",
-              backgroundColor: "#bb86fc",
+              fontWeight: "600",
+              backgroundColor: "#d1a3ff", // Light purple button color
               "&:hover": {
-                backgroundColor: "#9f6ae1", // Slightly darker shade on hover
+                backgroundColor: "#b892e0", // Slightly darker purple on hover
               },
             }}
           >
-            Log In
+            {loading ? (
+              <CircularProgress size={24} sx={{ color: "#d1a3ff" }} /> // Light purple loader color
+            ) : (
+              "Log In"
+            )}
           </Button>
         </form>
       </Box>
