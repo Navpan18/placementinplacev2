@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { db, auth } from "../firebase"; // Firestore instance
+import {  auth } from "../firebase"; // Firestore instance
 import { useAuth } from "../AuthContext"; // To get current user
 
 import Zoom from "react-medium-image-zoom";
@@ -108,10 +108,14 @@ const MyListings = () => {
   };
   const fetchCompanyNames = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "companyNames"));
-      const companies = querySnapshot.docs.map((doc) => ({
-        label: doc.data().Name,
-      }));
+      const scriptUrl =
+        "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
+      const response = await axios.get(scriptUrl);
+      const data = response.data;
+      console.log(data);
+      const companies = data.map((doc) => ({
+        label: doc.Name,
+      })); 
       setCompanyOptions(companies);
     } catch (error) {
       console.error("Error fetching company names: ", error);
@@ -120,10 +124,14 @@ const MyListings = () => {
 
   const fetchRoleNames = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "roles"));
-      const roles = querySnapshot.docs.map((doc) => ({
-        label: doc.data().Name,
-      }));
+      const scriptUrl =
+        "https://script.google.com/macros/s/AKfycbzyPuKzhLHdwBFfxD7lw62EuipAQ8fkX9t2ezm2R3Y0nuETftUcs9QtxrRKLjqtUjRV/exec";
+      const response = await axios.get(scriptUrl);
+      const data = response.data;
+      console.log(data);
+      const roles = data.map((doc) => ({
+        label: doc.Role,
+      })); 
       setRoleOptions(roles);
     } catch (error) {
       console.error("Error fetching roles: ", error);
@@ -183,9 +191,13 @@ const MyListings = () => {
     };
 
     const fetchRoleNames = async () => {
-      const querySnapshot = await getDocs(collection(db, "roles"));
-      const roles = querySnapshot.docs.map((doc) => ({
-        label: doc.data().Name,
+      const scriptUrl =
+        "https://script.google.com/macros/s/AKfycbzyPuKzhLHdwBFfxD7lw62EuipAQ8fkX9t2ezm2R3Y0nuETftUcs9QtxrRKLjqtUjRV/exec";
+      const response = await axios.get(scriptUrl);
+      const data = response.data;
+      console.log(data);
+      const roles = data.map((doc) => ({
+        label: doc.Role,
       }));
       setRoleOptions(roles);
     };
@@ -356,28 +368,28 @@ const MyListings = () => {
     // }
 
     try {
-      const docRef = doc(db, "companyData", formData.documentId);
+      // const docRef = doc(db, "companyData", formData.documentId);
 
-      // Update Firestore with edited data
-      await updateDoc(docRef, {
-        companyName: formData.companyName,
-        jobType: formData.jobType,
-        stipend: formData.stipend,
-        role: formData.role,
-        hrDetails: formData.hrDetails,
-        openFor: formData.openFor,
-        pptDate: normalizedPPTDate,
-        oaDate: normalizedOADate,
-        mailScreenshots: mailScreenshotURLs.length
-          ? mailScreenshotURLs
-          : formData.mailScreenshots, // Update with new or existing URLs
-        jobDescriptions: jobDescriptionURLs.length
-          ? jobDescriptionURLs
-          : formData.jobDescriptions, // Update with new or existing URLs
-        finalHiringNumber: formData.finalHiringNumber,
-        iitName: formData.iitName,
-        createdBy: currentUser.email,
-      });
+      // // Update Firestore with edited data
+      // await updateDoc(docRef, {
+      //   companyName: formData.companyName,
+      //   jobType: formData.jobType,
+      //   stipend: formData.stipend,
+      //   role: formData.role,
+      //   hrDetails: formData.hrDetails,
+      //   openFor: formData.openFor,
+      //   pptDate: normalizedPPTDate,
+      //   oaDate: normalizedOADate,
+      //   mailScreenshots: mailScreenshotURLs.length
+      //     ? mailScreenshotURLs
+      //     : formData.mailScreenshots, // Update with new or existing URLs
+      //   jobDescriptions: jobDescriptionURLs.length
+      //     ? jobDescriptionURLs
+      //     : formData.jobDescriptions, // Update with new or existing URLs
+      //   finalHiringNumber: formData.finalHiringNumber,
+      //   iitName: formData.iitName,
+      //   createdBy: currentUser.email,
+      // });
       setUploadProgress(60); // Update after image upload
 
       console.log(typeof formData.openFor);
@@ -494,7 +506,21 @@ const MyListings = () => {
     if (newCompanyName.trim()) {
       try {
         // Add the new company to Firestore
-        await addDoc(collection(db, "companyNames"), { Name: newCompanyName });
+        const newcompdet = new FormData();
+        newcompdet.append("companyName", newCompanyName);
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbzeScbVAkxUh1a4kKaUowkgP1RSVKy1BBQXI6UCG0h_9ewOF0XkQA37xLQsKaxJTwqP_Q/exec",
+          {
+            method: "POST",
+            body: newcompdet,
+          }
+        );
+        const response2 = await fetch(
+          "https://script.google.com/macros/s/AKfycbxesUYnUatgnXmHX2CB3XluUaMLJ39PtHElJvrPDwdg1fOr9o3-CZl4HVIma0RGuL77UQ/exec",
+          {
+            method: "GET",
+          }
+        );
         setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
         // Clear the input and close the modal
         setNewCompanyName("");
@@ -512,7 +538,21 @@ const MyListings = () => {
     if (newRoleName.trim()) {
       try {
         // Add the new role to Firestore
-        await addDoc(collection(db, "roles"), { Name: newRoleName });
+        const newroledet = new FormData();
+        newroledet.append("Role", newRoleName);
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbz5iFGeLcS0CEt12QyDm-BkT1tCX6d2euOw6HvOo01NyJfswM37gVDvC_oWNoabeuqb/exec",
+          {
+            method: "POST",
+            body: newroledet,
+          }
+        );
+        const response2 = await fetch(
+          "https://script.google.com/macros/s/AKfycbwY3E4GP7NnRwszIx76RDk17EdeQ81vKdQ2S7FKw95DqEbbOGqUydHhpTRNAEoNLF41/exec",
+          {
+            method: "GET",
+          }
+        );
         setFormData((prevData) => ({ ...prevData, role: newRoleName }));
         // Clear the input and close the modal
         setNewRoleName("");

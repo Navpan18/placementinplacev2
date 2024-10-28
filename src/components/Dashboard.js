@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "../firebase";
+import {  auth } from "../firebase";
+import { v4 as uuidv4 } from "uuid";
 import {
   TextField,
   Button,
@@ -79,11 +80,14 @@ const Dashboard = () => {
 
     const fetchRoleNames = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "roles"));
-        const roles = [];
-        querySnapshot.forEach((doc) => {
-          roles.push({ label: doc.data().Name });
-        });
+        const scriptUrl =
+          "https://script.google.com/macros/s/AKfycbzyPuKzhLHdwBFfxD7lw62EuipAQ8fkX9t2ezm2R3Y0nuETftUcs9QtxrRKLjqtUjRV/exec";
+        const response = await axios.get(scriptUrl);
+        const data = response.data;
+        console.log(data);
+        const roles = data.map((doc) => ({
+          label: doc.Role,
+        })); 
         setRoleOptions(roles);
       } catch (error) {
         console.error("Error fetching roles: ", error);
@@ -163,8 +167,21 @@ const Dashboard = () => {
   const handleAddCompany = async () => {
     if (newCompanyName.trim()) {
       try {
-        await addDoc(collection(db, "companyNames"), { Name: newCompanyName });
-
+        const newcompdet = new FormData();
+        newcompdet.append("companyName", newCompanyName);
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbzeScbVAkxUh1a4kKaUowkgP1RSVKy1BBQXI6UCG0h_9ewOF0XkQA37xLQsKaxJTwqP_Q/exec",
+          {
+            method: "POST",
+            body: newcompdet,
+          }
+        );
+        const response2 = await fetch(
+          "https://script.google.com/macros/s/AKfycbxesUYnUatgnXmHX2CB3XluUaMLJ39PtHElJvrPDwdg1fOr9o3-CZl4HVIma0RGuL77UQ/exec",
+          {
+            method: "GET",
+          }
+        );
         setCompanyOptions((prevOptions) => [
           ...prevOptions,
           { label: newCompanyName },
@@ -185,8 +202,21 @@ const Dashboard = () => {
   const handleAddRole = async () => {
     if (newRoleName.trim()) {
       try {
-        await addDoc(collection(db, "roles"), { Name: newRoleName });
-
+        const newroledet = new FormData();
+        newroledet.append("Role", newRoleName);
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbz5iFGeLcS0CEt12QyDm-BkT1tCX6d2euOw6HvOo01NyJfswM37gVDvC_oWNoabeuqb/exec",
+          {
+            method: "POST",
+            body: newroledet,
+          }
+        );
+        const response2 = await fetch(
+          "https://script.google.com/macros/s/AKfycbwY3E4GP7NnRwszIx76RDk17EdeQ81vKdQ2S7FKw95DqEbbOGqUydHhpTRNAEoNLF41/exec",
+          {
+            method: "GET",
+          }
+        );
         setRoleOptions((prevOptions) => [
           ...prevOptions,
           { label: newRoleName },
@@ -292,27 +322,27 @@ const Dashboard = () => {
 
         await Promise.all(uploadTasks);
 
-        const docRef = doc(collection(db, "companyData"));
-        const documentId = docRef.id;
+        // const docRef = doc(collection(db, "companyData"));
+        const documentId = uuidv4();
 
-        setProgress(60);
-        await setDoc(docRef, {
-          companyName: formData.companyName,
-          jobType: formData.jobType,
-          stipend: formData.stipend,
-          role: formData.role,
-          hrDetails: formData.hrDetails,
-          openFor: formData.openFor,
-          pptDate: formData.pptDate,
-          oaDate: formData.oaDate,
-          mailScreenshots: mailScreenshotURLs,
-          jobDescriptions: jobDescriptionURLs,
-          finalHiringNumber: formData.finalHiringNumber,
-          iitName: formData.iitName,
-          createdBy: currentUser.email, // Add createdBy
-          createdAt: new Date(),
-          documentId: documentId,
-        });
+        // setProgress(60);
+        // await setDoc(docRef, {
+        //   companyName: formData.companyName,
+        //   jobType: formData.jobType,
+        //   stipend: formData.stipend,
+        //   role: formData.role,
+        //   hrDetails: formData.hrDetails,
+        //   openFor: formData.openFor,
+        //   pptDate: formData.pptDate,
+        //   oaDate: formData.oaDate,
+        //   mailScreenshots: mailScreenshotURLs,
+        //   jobDescriptions: jobDescriptionURLs,
+        //   finalHiringNumber: formData.finalHiringNumber,
+        //   iitName: formData.iitName,
+        //   createdBy: currentUser.email, // Add createdBy
+        //   createdAt: new Date(),
+        //   documentId: documentId,
+        // });
 
         const newFormData = new FormData();
         newFormData.append("documentId", documentId);
