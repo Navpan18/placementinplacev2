@@ -30,11 +30,19 @@ const Login = () => {
         justifyContent="center"
         minHeight="100vh"
       >
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{ fontWeight:"700", color: "white" }} // Make heading text color white
+        >
           Login
         </Typography>
         {error && (
-          <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+          <Alert
+            severity="error"
+            sx={{ width: "100%", mb: 2, color: "white", backgroundColor: "#b00020" }} // White text for error message
+          >
             {error}
           </Alert>
         )}
@@ -47,6 +55,23 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            InputLabelProps={{ style: { color: "white" } }} // White color for label
+            InputProps={{
+              style: { color: "white" }, // White color for input text
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "white", // White outline color
+                },
+                "&:hover fieldset": {
+                  borderColor: "white", // White outline color on hover
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "white", // White outline color when focused
+                },
+              },
+            }}
           />
           <TextField
             label="Password"
@@ -56,13 +81,37 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            InputLabelProps={{ style: { color: "white" } }} // White color for label
+            InputProps={{
+              style: { color: "white" }, // White color for input text
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "white", // White outline color
+                },
+                "&:hover fieldset": {
+                  borderColor: "white", // White outline color on hover
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "white", // White outline color when focused
+                },
+              },
+            }}
           />
           <Button
             type="submit"
             variant="contained"
-            color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{
+              mt: 2,
+              color: "white",
+              fontWeight:"600",
+              backgroundColor: "#bb86fc",
+              "&:hover": {
+                backgroundColor: "#9f6ae1", // Slightly darker shade on hover
+              },
+            }}
           >
             Log In
           </Button>

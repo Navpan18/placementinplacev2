@@ -24,12 +24,16 @@ const customModalStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    width: "600px",
+    width: "700px",
     maxHeight: "90vh",
     overflowY: "auto",
+    backgroundColor: "#1c1c1c", // Set modal background to greyish-black
+    color: "white", // Ensure the text color is white throughout the modal
+    borderRadius: "10px", // Optional rounded corners
+    padding: "20px", // Add padding for content
   },
   overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
   },
 };
 
@@ -81,12 +85,13 @@ const AllListings = () => {
       const seen = new Set();
 
       data.forEach((listing) => {
-        const uniqueKey = `${listing.companyName.toLowerCase()}-${listing.role.toLowerCase()}`;
+        const uniqueKey = `${listing.companyName.toLowerCase()}-${listing.role.toLowerCase()}-${listing.jobType.toLowerCase()}`;
         if (!seen.has(uniqueKey)) {
           seen.add(uniqueKey);
           uniqueListings.push({
             companyName: listing.companyName,
             role: listing.role,
+            jobType: listing.jobType,
             iits: [listing],
           });
         } else {
@@ -94,8 +99,9 @@ const AllListings = () => {
           const existingGroup = uniqueListings.find(
             (group) =>
               group.companyName.toLowerCase() ===
-                listing.companyName.toLowerCase() &&
-              group.role.toLowerCase() === listing.role.toLowerCase()
+              listing.companyName.toLowerCase() &&
+              group.role.toLowerCase() === listing.role.toLowerCase() &&
+              group.jobType.toLowerCase() === listing.jobType.toLowerCase()
           );
           existingGroup.iits.push(listing);
         }
@@ -103,8 +109,8 @@ const AllListings = () => {
 
       // Sort by companyName - role in ascending order
       const sortedListings = uniqueListings.sort((a, b) => {
-        const keyA = `${a.companyName.toLowerCase()}-${a.role.toLowerCase()}`;
-        const keyB = `${b.companyName.toLowerCase()}-${b.role.toLowerCase()}`;
+        const keyA = `${a.companyName.toLowerCase()}-${a.role.toLowerCase()}-${a.jobType.toLowerCase()}`;
+        const keyB = `${b.companyName.toLowerCase()}-${b.role.toLowerCase()}-${a.jobType.toLowerCase()}`;
         return keyA.localeCompare(keyB);
       });
 
@@ -187,26 +193,54 @@ const AllListings = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" sx={{fontWeight:"700"}} gutterBottom>
           All Company Listings
         </Typography>
         <Button
           onClick={goToMyListings}
-          variant="contained"
-          color="primary"
-          sx={{ mr: 2 }}
+          variant="outlined"
+            sx={{
+              mr:2,
+              color: "white",
+              fontWeight: 700,
+              borderColor: "#bb86fc",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+                borderColor: "#9f6ae1",
+              },
+            }}
+          
         >
           My Listings
         </Button>
         <Button
           onClick={goToDashboard}
-          variant="contained"
-          color="primary"
-          sx={{ mr: 2 }}
+          variant="outlined"
+          sx={{
+            mr:2,
+            color: "white",
+            fontWeight: 700,
+            borderColor: "#bb86fc",
+            "&:hover": {
+              backgroundColor: "#9f6ae1",
+              borderColor: "#9f6ae1",
+            },
+          }}
         >
           DashBoard
         </Button>
-        <Button onClick={handleLogout} variant="outlined" color="error">
+        <Button onClick={handleLogout} variant="outlined" sx={{
+              mr: 2,
+              color: "white",
+              backgroundColor: "#c22f2f",
+              borderColor:"#c22f2f",
+              fontWeight:"600",
+              "&:hover": {
+                backgroundColor: "#bd0606",
+                color:"white",
+                borderColor: "re#bd0606d",
+              },
+            }}>
           Log Out
         </Button>
 
@@ -218,6 +252,23 @@ const AllListings = () => {
           margin="normal"
           value={searchTerm}
           onChange={handleSearchChange}
+          InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
         />
 
         {/* Display loader when loading */}
@@ -236,14 +287,26 @@ const AllListings = () => {
                     xs={12}
                     sm={6}
                     md={4}
-                    key={group.companyName + group.role}
+                    key={group.companyName + group.role + group.jobType}
                   >
-                    <Card>
+                    <Card sx={{
+                      backgroundColor: "black", // Black background for the card
+                      color: "white", // White font color
+                      boxShadow: 3, // Add subtle shadow for better visibility
+                      transition: "transform 0.3s ease-in-out", // Smooth zoom effect
+                      "&:hover": {
+                        transform: "scale(1.03)", // Slight zoom on hover
+                      },
+                    }}>
                       <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          {group.companyName + " - " + group.role}
+                        <Typography variant="h5" gutterBottom sx={{ fontWeight: "600" }}>
+                          {`${group.companyName.charAt(0).toUpperCase()}${group.companyName
+                            .slice(1)
+                            .toLowerCase()} - ${group.role.charAt(0).toUpperCase()}${group.role
+                              .slice(1)
+                              .toLowerCase()} - ${group.jobType}`}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary">
+                        <Typography variant="body2" color="white"  >
                           Colleges that have listed this company:
                         </Typography>
                         <Box sx={{ mt: 2 }}>
@@ -282,7 +345,14 @@ const AllListings = () => {
           ariaHideApp={false}
         >
           {selectedListing && (
-            <Box sx={{ p: 2 }}>
+            <Box
+              sx={{
+                p: 2,
+                backgroundColor: "#1c1c1c", // Greyish-black background
+                color: "white", // White text color
+                borderRadius: 2, // Rounded corners for the modal
+              }}
+            >
               <Typography variant="h5" gutterBottom>
                 {selectedListing.companyName} - {selectedListing.iitName}
               </Typography>
@@ -297,7 +367,25 @@ const AllListings = () => {
               </Typography>
               <Typography>
                 <strong>Questions Link:</strong>{" "}
-                {selectedListing.hrDetails || "N/A"}
+                {selectedListing.hrDetails[0] != "N" ? (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#bb86fc",
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "#9f6ae1",
+                      },
+                      textTransform: "none", // Keep the button text in normal case
+                      ml: 1, // Optional margin for spacing
+                    }}
+                    onClick={() => window.open(selectedListing.hrDetails, "_blank", "noopener,noreferrer")}
+                  >
+                    Open Link
+                  </Button>
+                ) : (
+                  <span style={{ color: "white" }}>N/A</span>
+                )}
               </Typography>
               <Typography>
                 <strong>Open For:</strong> {selectedListing.openFor}
@@ -316,16 +404,14 @@ const AllListings = () => {
 
               <Typography variant="h6" gutterBottom>
                 Job Descriptions:{" "}
-                {renderJobDescriptions(selectedListing.jobDescriptions) ===
-                "N/A"
+                {renderJobDescriptions(selectedListing.jobDescriptions) === "N/A"
                   ? "N/A"
                   : renderJobDescriptions(selectedListing.jobDescriptions)}
               </Typography>
 
               <Typography variant="h6" gutterBottom>
                 Mail Screenshots:{" "}
-                {renderMailScreenshots(selectedListing.mailScreenshots) ===
-                "N/A"
+                {renderMailScreenshots(selectedListing.mailScreenshots) === "N/A"
                   ? "N/A"
                   : renderMailScreenshots(selectedListing.mailScreenshots)}
               </Typography>
@@ -336,8 +422,14 @@ const AllListings = () => {
               </Typography>
               <Button
                 variant="contained"
-                color="primary"
-                sx={{ mt: 2 }}
+                sx={{
+                  mt: 2,
+                  backgroundColor: "#bb86fc",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "#9f6ae1",
+                  },
+                }}
                 onClick={closeModal}
               >
                 Close
