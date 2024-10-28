@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { db,auth} from "../firebase"; // Firestore instance
+import { db, auth } from "../firebase"; // Firestore instance
 import { useAuth } from "../AuthContext"; // To get current user
 
 import Zoom from "react-medium-image-zoom";
@@ -38,7 +38,7 @@ import {
 } from "firebase/firestore"; // Firestore methods
 import Modal from "react-modal"; // Import the Modal component
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 import { type } from "@testing-library/user-event/dist/type";
 // Modal styling
 const customStyles = {
@@ -80,7 +80,7 @@ const MyListings = () => {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newRoleName, setNewRoleName] = useState("");
-const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -128,14 +128,14 @@ const [searchTerm, setSearchTerm] = useState("");
       console.error("Error fetching roles: ", error);
     }
   };
-const handleLogout = async () => {
-  try {
-    await auth.signOut();
-    navigate("/login");
-  } catch (err) {
-    console.error("Failed to log out", err);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigate("/login");
+    } catch (err) {
+      console.error("Failed to log out", err);
+    }
+  };
   // Function to fetch listings
   const fetchListings = useCallback(async () => {
     const urls = [
@@ -242,34 +242,34 @@ const handleLogout = async () => {
 
   // Handle form input change for editing
   const handleInputChange = (e) => {
-  const { name, value, type, checked } = e.target;
+    const { name, value, type, checked } = e.target;
 
-  // Handle date input as string (e.g., "2024-10-24")
-  if (type === "date") {
-    setFormData({ ...formData, [name]: value }); // Set the date as a string
-  } 
-  // Handle checkbox input
-  else if (type === "checkbox") {
-    setFormData((prevData) => {
-      const openForArray = Array.isArray(prevData.openFor) ? prevData.openFor : [];
+    // Handle date input as string (e.g., "2024-10-24")
+    if (type === "date") {
+      setFormData({ ...formData, [name]: value }); // Set the date as a string
+    }
+    // Handle checkbox input
+    else if (type === "checkbox") {
+      setFormData((prevData) => {
+        const openForArray = Array.isArray(prevData.openFor) ? prevData.openFor : [];
 
-      if (checked) {
-        // Add value to array if checked
-        return { ...prevData, openFor: [...openForArray, value] };
-      } else {
-        // Remove value from array if unchecked
-        return {
-          ...prevData,
-          openFor: openForArray.filter((item) => item !== value),
-        };
-      }
-    });
-  } 
-  // Handle other input types
-  else {
-    setFormData({ ...formData, [name]: value });
-  }
-};
+        if (checked) {
+          // Add value to array if checked
+          return { ...prevData, openFor: [...openForArray, value] };
+        } else {
+          // Remove value from array if unchecked
+          return {
+            ...prevData,
+            openFor: openForArray.filter((item) => item !== value),
+          };
+        }
+      });
+    }
+    // Handle other input types
+    else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
 
   // Function to open the edit form and populate it with existing data
   const handleEditClick = (listing) => {
@@ -490,7 +490,7 @@ const handleLogout = async () => {
       try {
         // Add the new company to Firestore
         await addDoc(collection(db, "companyNames"), { Name: newCompanyName });
-setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
+        setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
         // Clear the input and close the modal
         setNewCompanyName("");
         setModalOpen(false);
@@ -508,7 +508,7 @@ setFormData((prevData) => ({ ...prevData, companyName: newCompanyName }));
       try {
         // Add the new role to Firestore
         await addDoc(collection(db, "roles"), { Name: newRoleName });
-setFormData((prevData) => ({ ...prevData, role: newRoleName }));
+        setFormData((prevData) => ({ ...prevData, role: newRoleName }));
         // Clear the input and close the modal
         setNewRoleName("");
         setRoleModalOpen(false);
@@ -536,9 +536,10 @@ setFormData((prevData) => ({ ...prevData, role: newRoleName }));
   const closeModal = () => {
     setModalIsOpen(false);
   };
-const filteredListings = listings.filter((listing) =>
-  listing.companyName.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const filteredListings = listings.filter((listing) =>
+    listing.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
 
   if (loading) {
     return (
@@ -580,114 +581,232 @@ const filteredListings = listings.filter((listing) =>
       <Box
         sx={{ mt: 4, mb: 4, display: "flex", justifyContent: "space-between" }}
       >
-        <Typography variant="h4">My Listings</Typography>
+        <Typography variant="h4" sx={{fontWeight:800}}>My Listings</Typography>
         <Box>
           <Button
             onClick={goToAllListings}
-            variant="contained"
-            color="primary"
-            sx={{ mr: 2 }}
+            variant="outlined"
+            sx={{
+              mr:2,
+              color: "white",
+              borderColor: "#bb86fc",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+                borderColor: "#9f6ae1",
+              },
+            }}
           >
             All Listings
           </Button>
-          <Button onClick={goToDashboard} variant="outlined" color="secondary">
+          <Button onClick={goToDashboard} variant="outlined" sx={{
+              mr: 2,
+              color: "white",
+              borderColor: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+                color:"white",
+                borderColor: "#9f6ae1",
+              },
+            }}>
             Back
           </Button>
-          <Button onClick={handleLogout} variant="outlined" color="error">LOG OUT</Button>
+          <Button onClick={handleLogout} variant="outlined"  sx={{
+              mr: 2,
+              color: "white",
+              backgroundColor: "#c22f2f",
+              borderColor:"#c22f2f",
+              fontWeight:"600",
+              "&:hover": {
+                backgroundColor: "#bd0606",
+                color:"white",
+                borderColor: "re#bd0606d",
+              },
+            }} >LOG OUT</Button>
         </Box>
       </Box>
+      {!modalIsOpen &&
       <TextField
         fullWidth
         label="Search by Company Name"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 4 }}
-      />
+        InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        mb:4,
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+      />}
 
       {listings.length > 0 ? (
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(1, 1fr)", // 1 card on mobile
-              sm: "repeat(2, 1fr)", // 2 cards on tablets
-              md: "repeat(3, 1fr)", // 3 cards on desktops
-            },
-            gap: 3,
+            display: "flex",
+            justifyContent: "center", // Center the grid horizontally
+            padding: 2, // Padding around the grid container for better spacing
           }}
         >
-          {listings
-            .filter((listing) =>
-              listing.companyName
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            )
-            .map((listing) => (
-              <Card key={listing.documentId} sx={{ padding: 2 }}>
-                <CardContent>
-                  <Typography variant="h6">{listing.companyName}</Typography>
-                  <Typography>Job Type: {listing.jobType}</Typography>
-                  <Typography>Stipend: {listing.stipend}</Typography>
-                  <Typography>Role: {listing.role}</Typography>
-                  <Typography>
-                    Questions Link: {listing.hrDetails || "N/A"}
-                  </Typography>
-                  <Typography>Open For: {listing.openFor || "N/A"}</Typography>
-                  <Typography>
-                    PPT Date:
-                    {listing.pptDate || "N/A"}
-                  </Typography>
-                  <Typography>
-                    OA Date: {listing.oaDate || "N/A"}
-                  </Typography>
-
-                  <Typography>Mail Screenshots:</Typography>
-                  {listing.mailScreenshots &&
-                  listing.mailScreenshots.split(",")[0][0] === "h"
-                    ? listing.mailScreenshots.split(",").map((url, index) => (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(1, 1fr)", // 1 card on mobile
+                sm: "repeat(2, 1fr)", // 2 cards on tablets
+                md: "repeat(3, 1fr)", // 3 cards on desktops
+              },
+              maxWidth: "1200px",
+              gap: 5,
+            }}
+          >
+            {listings
+              .filter((listing) =>
+                listing.companyName
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase())
+              )
+              .map((listing) => (
+                <Card key={listing.documentId} sx={{
+                  padding: 2, backgroundColor: "black", // Black background for cards
+                  color: "white", // White text color
+                  justifyContent: "center", alignItems: "center",
+                  width: "20rem",
+                  transition: "transform 0.3s ease-in-out", // Smooth zoom effect
+                  "&:hover": {
+                    transform: "scale(1.03)", // Slight zoom on hover
+                  },
+                }}>
+                  <CardContent>
+                    <Typography variant="h6"
+                      sx={{ color: "#9fa6e1", fontWeight: "700" }}  >{listing.companyName}</Typography>
+                    <Typography><strong>Job Type:</strong>  {listing.jobType}</Typography>
+                    <Typography><strong>Stipend:</strong>  {listing.stipend}</Typography>
+                    <Typography><strong>Role:</strong>  {listing.role}</Typography>
+                    <Typography>
+                      <strong>Questions Link:</strong>{" "} {listing.hrDetails[0] != "N" ? (
                         <Button
-                          key={index}
                           variant="contained"
-                          color="primary"
-                          onClick={() => handleViewImage(url)}
-                          sx={{ mr: 1, mb: 1 }}
+                          sx={{
+                            backgroundColor: "#bb86fc",
+                            color: "white",
+                            "&:hover": {
+                              backgroundColor: "#9f6ae1",
+                            },
+                            textTransform: "none", // Keep the button text in normal case
+                            ml: 1, // Optional margin for spacing
+                          }}
+                          onClick={() => window.open(listing.hrDetails, "_blank", "noopener,noreferrer")}
                         >
-                          Image {index + 1}
+                          Open Link
                         </Button>
-                      ))
-                    : "N/A"}
+                      ) : (
+                        <span style={{ color: "white" }}>N/A</span>
+                      )}
+                    </Typography>
+                    <Typography>
+                      <strong>Open For: </strong>{listing.openFor || "N/A"}</Typography>
+                    <Typography>
+                      <strong>PPT Date:</strong>{" "}
+                      {listing.pptDate || "N/A"}
+                    </Typography>
+                    <Typography>
+                      <strong>OA Date:</strong> {listing.oaDate || "N/A"}
+                    </Typography>
 
-                  <Typography>Job Description URLs:</Typography>
-                  {listing.jobDescriptions &&
-                  listing.jobDescriptions.split(",")[0][0] === "h"
-                    ? listing.jobDescriptions.split(",").map((url, index) => (
-                        <Button
-                          key={index}
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleViewPDF(url)}
-                          sx={{ mr: 1, mb: 1 }}
-                        >
-                          PDF {index + 1}
-                        </Button>
-                      ))
-                    : "N/A"}
+                   
+                      
+      <Typography sx={{ mr: 1 }}>
+        <strong>Mail Screenshots:</strong>
+      </Typography>
+      
+      {listing.mailScreenshots &&
+      listing.mailScreenshots.split(",")[0][0] === "h" ? (
+        listing.mailScreenshots.split(",").map((url, index) => (
+          <Button
+            key={index}
+            variant="contained"
+            onClick={() => handleViewImage(url)}
+            sx={{
+              mr: 1,
+              mb:1,
+              backgroundColor: "#bb86fc",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+              },
+            }}
+          >
+            Image {index + 1}
+          </Button>
+        ))
+      ) : (
+        <span style={{ color: "white" }}>N/A</span>
+      )}
+    
 
-                  <Typography>
-                    Final Hiring Number: {listing.finalHiringNumber || "N/A"}
-                  </Typography>
-                  <Typography>College Name: {listing.iitName}</Typography>
-                </CardContent>
-                <CardActions>
-                  <Button
-                    onClick={() => handleEditClick(listing)}
-                    variant="contained"
-                  >
-                    Edit
-                  </Button>
-                </CardActions>
-              </Card>
-            ))}
+     <Typography sx={{ mr: 1 }}>
+        <strong>Job Description URLs:</strong>
+      </Typography>
+      {listing.jobDescriptions &&
+      listing.jobDescriptions.split(",")[0][0] === "h" ? (
+        listing.jobDescriptions.split(",").map((url, index) => (
+          <Button
+            key={index}
+            variant="contained"
+            onClick={() => handleViewPDF(url)}
+            sx={{
+              mr: 1,
+              mb:1,
+              backgroundColor: "#bb86fc",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#9f6ae1",
+              },
+            }}
+          >
+            PDF {index + 1}
+          </Button>
+        ))
+      ) : (
+        <span style={{ color: "white" }}>N/A</span>
+      )}
+
+                    <Typography>
+                      <strong>Final Hiring Number:</strong>
+                      {listing.finalHiringNumber || "N/A"}
+                    </Typography>
+                    <Typography>
+                      <strong>College Name: </strong>{listing.iitName.toUpperCase()}</Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      onClick={() => handleEditClick(listing)}
+                      variant="contained"
+                      sx={{
+                        backgroundColor: "#bb86fc",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "#9f6ae1",
+                        },
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </CardActions>
+                </Card>
+              ))}
+          </Box>
         </Box>
       ) : (
         <Typography>No listings found.</Typography>
@@ -756,217 +875,414 @@ const filteredListings = listings.filter((listing) =>
 
       {/* Edit form in a modal popup */}
       <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="Edit Listing Modal"
-        style={customStyles}
-        ariaHideApp={false}
+  isOpen={modalIsOpen}
+  onRequestClose={closeModal}
+  contentLabel="Edit Listing Modal"
+  style={{
+    content: {
+      width:"500px",
+      left:"30%",
+      position:"absolute",
+      backgroundColor: "black", // Black background for the form
+      color: "white", // White text color
+      borderRadius: "10px", // Optional rounded corners
+      padding: "20px", // Padding for better layout
+      
+    },
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.9)", // Dark overlay for contrast
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center", // Center overlay content
+    },
+  }}
+  ariaHideApp={false}
+><Box sx={{display:"flex",justifyContent:"center"}}>
+<Typography variant="h5" sx={{ color: "white", marginBottom: 2, fontWeight:"700" }}>
+    Edit Listing
+  </Typography>
+</Box>
+  
+  <form onSubmit={handleEditSubmit}>
+    <Autocomplete
+      options={companyOptions}
+      freeSolo
+      value={formData.companyName}
+      onInputChange={(e, newValue) =>
+        setFormData({ ...formData, companyName: newValue })
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Company Name"
+          required
+          sx={{
+            input: { color: "white" },
+            label: { color: "white" },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "white",
+              },
+              "&:hover fieldset": {
+                borderColor: "#bb86fc",
+              },
+            },
+            marginBottom: 2,
+          }}
+        />
+      )}
+    />
+
+    <Button
+      variant="contained"
+      onClick={() => setModalOpen(true)}
+      sx={{
+        backgroundColor: "#bb86fc",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+        },
+        marginBottom: 2,
+      }}
+    >
+      Add New Company
+    </Button>
+
+    <Autocomplete
+      options={roleOptions}
+      freeSolo
+      value={formData.role}
+      onInputChange={(e, newValue) =>
+        setFormData({ ...formData, role: newValue })
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Role"
+          required
+          sx={{
+            input: { color: "white" },
+            label: { color: "white" },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "white",
+              },
+              "&:hover fieldset": {
+                borderColor: "#bb86fc",
+              },
+            },
+            marginBottom: 2,
+          }}
+        />
+      )}
+    />
+
+    <Button
+      variant="contained"
+      onClick={() => setRoleModalOpen(true)}
+      sx={{
+        backgroundColor: "#bb86fc",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+        },
+        marginBottom: 2,
+      }}
+    >
+      Add New Role
+    </Button>
+
+    <FormControl fullWidth margin="normal">
+      <Typography sx={{ color: "white" }}>Job Type:</Typography>
+      <RadioGroup
+        row
+        name="jobType"
+        value={formData.jobType}
+        onChange={handleInputChange}
+        disabled={modalLoading}
       >
-        <Typography variant="h6">Edit Listing</Typography>
-        <form onSubmit={handleEditSubmit}>
-          <Autocomplete
-            options={companyOptions}
-            freeSolo
-            value={formData.companyName}
-            onInputChange={(e, newValue) =>
-              setFormData({ ...formData, companyName: newValue })
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Company Name" required />
-            )}
-          />
+        <FormControlLabel
+          value="Intern"
+          control={<Radio sx={{ color: "white" ,"&.Mui-checked": {
+              color: "#bb86fc", // Purple when checked
+            },}} />}
+          label="Intern"
+          sx={{ color: "white" }}
+        />
+        <FormControlLabel
+          value="FTE"
+          control={<Radio sx={{ color: "white" ,"&.Mui-checked": {
+              color: "#bb86fc", // Purple when checked
+            },}} />}
+          label="FTE"
+          sx={{ color: "white" }}
+        />
+      </RadioGroup>
+    </FormControl>
 
-          <Button variant="contained" onClick={() => setModalOpen(true)}>
-            Add New Company
-          </Button>
-
-          <Autocomplete
-            options={roleOptions}
-            freeSolo
-            value={formData.role}
-            onInputChange={(e, newValue) =>
-              setFormData({ ...formData, role: newValue })
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Role" required />
-            )}
-          />
-
-          <Button variant="contained" onClick={() => setRoleModalOpen(true)}>
-            Add New Role
-          </Button>
-
-          <FormControl fullWidth margin="normal">
-            <Typography>Job Type:</Typography>
-            <RadioGroup
-              row
-              name="jobType"
-              value={formData.jobType}
+    <TextField
+      label="Stipend"
+      name="stipend"
+      value={formData.stipend}
+      onChange={handleInputChange}
+      fullWidth
+      margin="normal"
+      required
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "#bb86fc",
+          },
+        },
+      }}
+    />
+    <TextField
+      label="Questions Link"
+      name="hrDetails"
+      value={formData.hrDetails}
+      onChange={handleInputChange}
+      fullWidth
+      margin="normal"
+      placeholder="Enter HR contact details"
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "#bb86fc",
+          },
+        },
+      }}
+    />
+    <FormControl margin="normal" fullWidth>
+      <Typography sx={{ color: "white" }}>Open For:</Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="openFor"
+              value="BTech"
+              checked={formData.openFor.includes("BTech")}
               onChange={handleInputChange}
               disabled={modalLoading}
-            >
-              <FormControlLabel
-                value="Intern"
-                control={<Radio />}
-                label="Intern"
-              />
-              <FormControlLabel value="FTE" control={<Radio />} label="FTE" />
-            </RadioGroup>
-          </FormControl>
-
-          <TextField
-            label="Stipend"
-            name="stipend"
-            value={formData.stipend}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            required
-            disabled={modalLoading}
-          />
-          <TextField
-            label="Questions Link"
-            name="hrDetails"
-            value={formData.hrDetails}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            placeholder="Enter HR contact details"
-            disabled={modalLoading}
-          />
-          <FormControl margin="normal" fullWidth>
-            <Typography>Open For:</Typography>
-            <FormGroup row>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="openFor"
-                    value="BTech"
-                    checked={formData.openFor.includes("BTech")}
-                    onChange={handleInputChange}
-                    disabled={modalLoading}
-                  />
-                }
-                label="BTech"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="openFor"
-                    value="IDD"
-                    checked={formData.openFor.includes("IDD")}
-                    onChange={handleInputChange}
-                    disabled={modalLoading}
-                  />
-                }
-                label="IDD"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="openFor"
-                    value="MTech"
-                    checked={formData.openFor.includes("MTech")}
-                    onChange={handleInputChange}
-                    disabled={modalLoading}
-                  />
-                }
-                label="MTech"
-              />
-            </FormGroup>
-          </FormControl>
-
-          <TextField
-            label="PPT Date"
-            name="pptDate"
-            type="date"
-            value={
-              formData.pptDate && formData.pptDate !== "N/A"
-                ? formData.pptDate.split("T")[0]
-                : ""
-            }
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            disabled={modalLoading}
-          />
-          <TextField
-            label="OA Date"
-            name="oaDate"
-            type="date"
-            value={
-              formData.oaDate && formData.oaDate !== "N/A"
-                ? formData.oaDate
-                : ""
-            }
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            disabled={modalLoading}
-          />
-          {formData.openFor.includes("MTech") && (
-            <>
-              <Typography>Mail Screenshots:</Typography>
-              <input
-                multiple
-                type="file"
-                name="mailScreenshots"
-                ref={fileInputRef}
-                onChange={handleChange}
-                disabled={modalLoading}
-                style={{ marginBottom: "16px" }}
-              />
-            </>
-          )}
-          {formData.openFor.includes("MTech") && (
-            <>
-              <Typography>Job Description:</Typography>
-              <input
-                multiple
-                type="file"
-                name="jobDescriptions"
-                ref={fileInputjRef}
-                onChange={handleChange}
-                disabled={modalLoading}
-                style={{ marginBottom: "16px" }}
-              />
-            </>
-          )}
-          <TextField
-            label="Final Hiring Number"
-            name="finalHiringNumber"
-            type="number"
-            value={formData.finalHiringNumber}
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-            disabled={modalLoading}
-          />
-          <TextField
-            label="College Name"
-            name="iitName"
-            value={currentUser.email.split("#")[1].split("@")[0]}
-            fullWidth
-            margin="normal"
-            disabled={modalLoading}
-          />
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-            <Button type="submit" variant="contained" disabled={modalLoading}>
-              {modalLoading ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button
-              type="button"
-              onClick={closeModal}
-              variant="outlined"
+              sx={{ color: "white","&.Mui-checked": {
+            color: "#bb86fc", // Purple when checked
+          }, }}
+            />
+          }
+          label="BTech"
+          sx={{ color: "white" }}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="openFor"
+              value="IDD"
+              checked={formData.openFor.includes("IDD")}
+              onChange={handleInputChange}
               disabled={modalLoading}
-            >
-              Cancel
-            </Button>
-          </Box>
-        </form>
-      </Modal>
+              sx={{ color: "white","&.Mui-checked": {
+            color: "#bb86fc", // Purple when checked
+          }, }}
+            />
+          }
+          label="IDD"
+          sx={{ color: "white" }}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="openFor"
+              value="MTech"
+              checked={formData.openFor.includes("MTech")}
+              onChange={handleInputChange}
+              disabled={modalLoading}
+              sx={{ color: "white","&.Mui-checked": {
+            color: "#bb86fc", // Purple when checked
+          }, }}
+            />
+          }
+          label="MTech"
+          sx={{ color: "white" }}
+        />
+      </FormGroup>
+    </FormControl>
+
+    <TextField
+      label="PPT Date"
+      name="pptDate"
+      type="date"
+      value={
+        formData.pptDate && formData.pptDate !== "N/A"
+          ? formData.pptDate.split("T")[0]
+          : ""
+      }
+      onChange={handleInputChange}
+      fullWidth
+      margin="normal"
+      InputLabelProps={{ shrink: true }}
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "#bb86fc",
+          },
+        }
+      }}
+      InputProps={{
+        inputProps: { 
+          onClick: (event) => event.target.showPicker && event.target.showPicker() 
+        }
+      }}
+    />
+    <TextField
+      label="OA Date"
+      name="oaDate"
+      type="date"
+      value={
+        formData.oaDate && formData.oaDate !== "N/A"
+          ? formData.oaDate
+          : ""
+      }
+      onChange={handleInputChange}
+      fullWidth
+      margin="normal"
+      InputLabelProps={{ shrink: true }}
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "#bb86fc",
+          },
+        },
+      }}
+      InputProps={{
+        inputProps: { 
+          onClick: (event) => event.target.showPicker && event.target.showPicker() 
+        }
+      }}
+    />
+
+    {formData.openFor.includes("MTech") && (
+      <>
+        <Typography sx={{ color: "white" }}>Mail Screenshots:</Typography>
+        <input
+          multiple
+          type="file"
+          name="mailScreenshots"
+          ref={fileInputRef}
+          onChange={handleChange}
+          disabled={modalLoading}
+          style={{ marginBottom: "16px", color: "white" }}
+        />
+      </>
+    )}
+    {formData.openFor.includes("MTech") && (
+      <>
+        <Typography sx={{ color: "white" }}>Job Description:</Typography>
+        <input
+          multiple
+          type="file"
+          name="jobDescriptions"
+          ref={fileInputjRef}
+          onChange={handleChange}
+          disabled={modalLoading}
+          style={{ marginBottom: "16px", color: "white" }}
+        />
+      </>
+    )}
+    <TextField
+      label="Final Hiring Number"
+      name="finalHiringNumber"
+      type="number"
+      value={formData.finalHiringNumber}
+      onChange={handleInputChange}
+      fullWidth
+      margin="normal"
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "#bb86fc",
+          },
+        },
+      }}
+    />
+    <TextField
+      label="College Name"
+      name="iitName"
+      value={currentUser.email.split("#")[1].split("@")[0]}
+      fullWidth
+      margin="normal"
+      disabled={modalLoading}
+      sx={{
+        input: { color: "white" },
+        label: { color: "white" },
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+    <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={modalLoading}
+        sx={{
+          backgroundColor: "#bb86fc",
+          color: "white",
+          "&:hover": {
+            backgroundColor: "#9f6ae1",
+          },
+        }}
+      >
+        {modalLoading ? "Saving..." : "Save Changes"}
+      </Button>
+      <Button
+        type="button"
+        onClick={closeModal}
+        variant="outlined"
+        disabled={modalLoading}
+        sx={{
+          color: "white",
+          borderColor: "#bb86fc",
+          "&:hover": {
+            borderColor: "#9f6ae1",
+          },
+        }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  </form>
+</Modal>
     </Container>
   );
 };

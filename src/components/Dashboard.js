@@ -386,329 +386,595 @@ const Dashboard = () => {
         </Typography>
 
         <Box
-          sx={{
-            mt: 4,
-            mb: 4,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Box>
-            <Button
-              onClick={goToMyListings}
-              variant="outlined"
-              color="primary"
-              sx={{ mr: 2 }}
-            >
-              My Listings
-            </Button>
-            <Button
-              onClick={goToAllListings}
-              variant="outlined"
-              color="primary"
-            >
-              All Listings
-            </Button>
-          </Box>
-          <Button onClick={handleLogout} variant="outlined" color="error">
-            Log Out
-          </Button>
-        </Box>
+  sx={{
+    mt: 4,
+    mb: 4,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <Box>
+    <Button
+      onClick={goToMyListings}
+      variant="outlined"
+      sx={{
+        mr: 2,
+        color: "white",
+        borderColor: "#bb86fc",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+          borderColor: "#9f6ae1",
+        },
+      }}
+    >
+      My Listings
+    </Button>
+    <Button
+      onClick={goToAllListings}
+      variant="outlined"
+      sx={{
+        color: "white",
+        borderColor: "#bb86fc",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+          borderColor: "#9f6ae1",
+        },
+      }}
+    >
+      All Listings
+    </Button>
+  </Box>
+  <Button
+    onClick={handleLogout}
+    variant="outlined"
+    sx={{
+      mr: 2,
+      color: "white",
+      backgroundColor: "#c22f2f",
+      borderColor:"#c22f2f",
+      fontWeight:"600",
+      "&:hover": {
+        backgroundColor: "#bd0606",
+        color:"white",
+        borderColor: "re#bd0606d",
+      },
+    }}
+  >
+    Log Out
+  </Button>
+</Box>
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Autocomplete
-          options={companyOptions}
-          freeSolo
-          value={formData.companyName}
-          onInputChange={(e, newValue) =>
-            setFormData({ ...formData, companyName: newValue })
-          }
-          onChange={handleCompanyChange}
-          getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.label
-          }
-          renderInput={(params) => (
-            <TextField {...params} label="Company Name" required />
-          )}
+  <Autocomplete
+    options={companyOptions}
+    freeSolo
+    value={formData.companyName}
+    onInputChange={(e, newValue) =>
+      setFormData({ ...formData, companyName: newValue })
+    }
+    onChange={handleCompanyChange}
+    getOptionLabel={(option) =>
+      typeof option === "string" ? option : option.label
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        label="Company Name"
+        required
+        InputLabelProps={{ style: { color: "white" } }}
+        InputProps={{
+          ...params.InputProps,
+          style: { color: "white" },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "white",
+            },
+            "&:hover fieldset": {
+              borderColor: "white",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "white",
+            },
+          },
+        }}
+      />
+    )}
+  />
+
+  <Button
+    variant="contained"
+    sx={{
+      mt: 1,
+      mb: 2,
+      backgroundColor: "#bb86fc",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#9f6ae1",
+      },
+    }}
+    onClick={() => setModalOpen(true)}
+  >
+    Add New Company
+  </Button>
+
+  <Autocomplete
+    options={roleOptions}
+    freeSolo
+    value={formData.role}
+    onInputChange={(e, newValue) =>
+      setFormData({ ...formData, role: newValue })
+    }
+    onChange={handleRoleChange}
+    getOptionLabel={(option) =>
+      typeof option === "string" ? option : option.label
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        label="Role"
+        required
+        InputLabelProps={{ style: { color: "white" } }}
+        InputProps={{
+          ...params.InputProps,
+          style: { color: "white" },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "white",
+            },
+            "&:hover fieldset": {
+              borderColor: "white",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "white",
+            },
+          },
+        }}
+      />
+    )}
+  />
+
+  <Button
+    variant="contained"
+    sx={{
+      mt: 1,
+      mb: 2,
+      backgroundColor: "#bb86fc",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#9f6ae1",
+      },
+    }}
+    onClick={() => setRoleModalOpen(true)}
+  >
+    Add New Role
+  </Button>
+
+  <FormControl fullWidth margin="normal">
+    <FormLabel sx={{ color: "white" }}>Job Type</FormLabel>
+    <RadioGroup
+      row
+      name="jobType"
+      value={formData.jobType}
+      onChange={handleChange}
+    >
+      <FormControlLabel
+        value="Intern"
+        control={<Radio  sx={{ color: "white" ,"&.Mui-checked": {
+          color: "#bb86fc", // Purple when checked
+        },}} />}
+      label="Intern"
+      sx={{ color: "white" }} />
+      <FormControlLabel
+        value="FTE"
+        control={<Radio sx={{ color: "white" ,"&.Mui-checked": {
+          color: "#bb86fc", // Purple when checked
+        },}} />}
+      label="FTE"
+      sx={{ color: "white" }} />
+        
+    </RadioGroup>
+  </FormControl>
+
+  <FormControl fullWidth margin="normal">
+    <TextField
+      label="Stipend"
+      name="stipend"
+      value={formData.stipend}
+      onChange={handleChange}
+      required
+      InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+  </FormControl>
+
+  <FormControl fullWidth margin="normal">
+    <TextField
+      label="Question link"
+      name="hrDetails"
+      value={formData.hrDetails}
+      onChange={handleChange}
+      InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+  </FormControl>
+
+  <FormControl margin="normal" fullWidth>
+    <FormLabel sx={{ color: "white" }}>Open For</FormLabel>
+    <FormGroup row>
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="openFor"
+            value="BTech"
+            checked={formData.openFor.includes("BTech")}
+            onChange={handleChange}
+            sx={{ color: "white","&.Mui-checked": {
+              color: "#bb86fc", // Purple when checked
+            }, }}
+          />
+        }
+        label={<Typography sx={{ color: "white" }}>BTech</Typography>}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="openFor"
+            value="IDD"
+            checked={formData.openFor.includes("IDD")}
+            onChange={handleChange}
+            sx={{ color: "white","&.Mui-checked": {
+              color: "#bb86fc", // Purple when checked
+            }, }}
+          />
+        }
+        label={<Typography sx={{ color: "white" }}>IDD</Typography>}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="openFor"
+            value="MTech"
+            checked={formData.openFor.includes("MTech")}
+            onChange={handleChange}
+            sx={{ color: "white","&.Mui-checked": {
+              color: "#bb86fc", // Purple when checked
+            }, }}
+          />
+        }
+        label={<Typography sx={{ color: "white" }}>MTech</Typography>}
+      />
+    </FormGroup>
+  </FormControl>
+
+  {formData.openFor.includes("MTech") && (
+    <>
+      <FormControl fullWidth margin="normal">
+        <FormLabel sx={{ color: "white" }}>Mail Screenshot Uploads</FormLabel>
+        <input
+          type="file"
+          name="mailScreenshots"
+          multiple
+          onChange={handleChange}
+          ref={fileInputRef}
+          style={{ color: "white" }}
         />
+      </FormControl>
 
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 1, mb: 2 }}
-          onClick={() => setModalOpen(true)}
-        >
-          Add New Company
-        </Button>
-
-        <Autocomplete
-          options={roleOptions}
-          freeSolo
-          value={formData.role}
-          onInputChange={(e, newValue) =>
-            setFormData({ ...formData, role: newValue })
-          }
-          onChange={handleRoleChange}
-          getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.label
-          }
-          renderInput={(params) => (
-            <TextField {...params} label="Role" required />
-          )}
+      <FormControl fullWidth margin="normal">
+        <FormLabel sx={{ color: "white" }}>Job Description Uploads</FormLabel>
+        <input
+          type="file"
+          name="jobDescriptions"
+          multiple
+          onChange={handleChange}
+          ref={jobDescriptionsRef}
+          style={{ color: "white" }}
         />
+      </FormControl>
+    </>
+  )}
 
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 1, mb: 2 }}
-          onClick={() => setRoleModalOpen(true)}
-        >
-          Add New Role
-        </Button>
+  <FormControl fullWidth margin="normal">
+    <TextField
+      label="PPT Date"
+      name="pptDate"
+      type="date"
+      InputLabelProps={{ shrink: true, style: { color: "white" } }}
+      value={formData.pptDate}
+      onChange={handleChange}
+      InputProps={{
+        style: { color: "white" },
+        sx: {
+          "& .MuiInputAdornment-root .MuiSvgIcon-root": {
+            color: "#9f6ae1", // Calendar icon color
+          },
+        },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+  </FormControl>
 
-        <FormControl fullWidth margin="normal">
-          <FormLabel>Job Type</FormLabel>
-          <RadioGroup
-            row
-            name="jobType"
-            value={formData.jobType}
-            onChange={handleChange}
-          >
-            <FormControlLabel
-              value="Intern"
-              control={<Radio />}
-              label="Intern"
-            />
-            <FormControlLabel value="FTE" control={<Radio />} label="FTE" />
-          </RadioGroup>
-        </FormControl>
+  <FormControl fullWidth margin="normal">
+    <TextField
+      label="OA Date"
+      name="oaDate"
+      type="date"
+      InputLabelProps={{ shrink: true, style: { color: "white" } }}
+      value={formData.oaDate}
+      onChange={handleChange}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+  </FormControl>
 
-        <FormControl fullWidth margin="normal">
-          <TextField
-            label="Stipend"
-            name="stipend"
-            value={formData.stipend}
-            onChange={handleChange}
-            required
-          />
-        </FormControl>
+  <FormControl fullWidth margin="normal">
+    <TextField
+      label="Final Hiring Number"
+      name="finalHiringNumber"
+      value={formData.finalHiringNumber}
+      onChange={handleChange}
+      InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+  </FormControl>
 
-        <FormControl fullWidth margin="normal">
-          <TextField
-            label="Question link"
-            name="hrDetails"
-            value={formData.hrDetails}
-            onChange={handleChange}
-          />
-        </FormControl>
+  <Button
+    type="submit"
+    variant="contained"
+    sx={{
+      mt: 3,
+      backgroundColor: "#bb86fc",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#9f6ae1",
+      },
+    }}
+    disabled={loading}
+  >
+    {loading ? "Submitting..." : "Submit"}
+  </Button>
+</form>
 
-        <FormControl margin="normal" fullWidth>
-          <FormLabel>Open For</FormLabel>
-          <FormGroup row>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="openFor"
-                  value="BTech"
-                  checked={formData.openFor.includes("BTech")}
-                  onChange={handleChange}
-                />
-              }
-              label="BTech"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="openFor"
-                  value="IDD"
-                  checked={formData.openFor.includes("IDD")}
-                  onChange={handleChange}
-                />
-              }
-              label="IDD"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="openFor"
-                  value="MTech"
-                  checked={formData.openFor.includes("MTech")}
-                  onChange={handleChange}
-                />
-              }
-              label="MTech"
-            />
-          </FormGroup>
-        </FormControl>
-
-        {formData.openFor.includes("MTech") && (
-          <>
-            <FormControl fullWidth margin="normal">
-              <FormLabel>Mail Screenshot Uploads</FormLabel>
-              <input
-                type="file"
-                name="mailScreenshots"
-                multiple
-                onChange={handleChange}
-                ref={fileInputRef}
-              />
-            </FormControl>
-
-            <FormControl fullWidth margin="normal">
-              <FormLabel>Job Description Uploads</FormLabel>
-              <input
-                type="file"
-                name="jobDescriptions"
-                multiple
-                onChange={handleChange}
-                ref={jobDescriptionsRef}
-              />
-            </FormControl>
-          </>
-        )}
-
-        <FormControl fullWidth margin="normal">
-          <TextField
-            label="PPT Date"
-            name="pptDate"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={formData.pptDate}
-            onChange={handleChange}
-          />
-        </FormControl>
-
-        <FormControl fullWidth margin="normal">
-          <TextField
-            label="OA Date"
-            name="oaDate"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={formData.oaDate}
-            onChange={handleChange}
-          />
-        </FormControl>
-
-        <FormControl fullWidth margin="normal">
-          <TextField
-            label="Final Hiring Number"
-            name="finalHiringNumber"
-            value={formData.finalHiringNumber}
-            onChange={handleChange}
-          />
-        </FormControl>
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 3 }}
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit"}
-        </Button>
-      </form>
-
-      <Modal open={showProgressBar} onClose={() => setShowProgressBar(false)}>
-        <Box
+<Modal open={showProgressBar} onClose={() => setShowProgressBar(false)}>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bgcolor: "#121212", // Dark background for modal
+      color: "white", // White text color
+      borderRadius: 2,
+      boxShadow: 24,
+      p: 4,
+      width: 300,
+      textAlign: "center",
+    }}
+  >
+    {uploadComplete ? (
+      <Typography variant="h6" sx={{ color: "#bb86fc" }}>
+        Upload Complete!
+      </Typography>
+    ) : (
+      <>
+        <Typography variant="h6" sx={{ color: "white" }}>
+          Uploading...
+        </Typography>
+        <CircularProgress
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
-            width: 300,
-            textAlign: "center",
+            mt: 2,
+            color: "#bb86fc", // Circular loader color to match the theme
           }}
-        >
-          {uploadComplete ? (
-            <Typography variant="h6" color="primary">
-              Upload Complete!
-            </Typography>
-          ) : (
-            <>
-              <Typography variant="h6">Uploading...</Typography>
-              <CircularProgress sx={{ mt: 2 }} /> {/* Circular loader */}
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{ mt: 2 }}
-              />
-              <Typography sx={{ mt: 2 }}>{progress}%</Typography>
-            </>
-          )}
-        </Box>
-      </Modal>
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box
+        />
+        <LinearProgress
+          variant="determinate"
+          value={progress}
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
+            mt: 2,
+            backgroundColor: "#333", // Dark background for the progress bar
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: "#bb86fc", // Progress bar color to match theme
+            },
           }}
-        >
-          <Typography variant="h6">Add New Company</Typography>
-          <TextField
-            fullWidth
-            label="Company Name"
-            value={newCompanyName}
-            onChange={(e) => setNewCompanyName(e.target.value)}
-            sx={{ mt: 2 }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2 }}
-            onClick={handleAddCompany}
-          >
-            Add Company
-          </Button>
-        </Box>
-      </Modal>
+        />
+        <Typography sx={{ mt: 2, color: "white" }}>{progress}%</Typography>
+      </>
+    )}
+  </Box>
+</Modal>
 
-      <Modal open={roleModalOpen} onClose={() => setRoleModalOpen(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Typography variant="h6">Add New Role</Typography>
-          <TextField
-            fullWidth
-            label="Role Name"
-            value={newRoleName}
-            onChange={(e) => setNewRoleName(e.target.value)}
-            sx={{ mt: 2 }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2 }}
-            onClick={handleAddRole}
-          >
-            Add Role
-          </Button>
-        </Box>
-      </Modal>
+<Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bgcolor: "#121212", // Dark background for modal
+      color: "white", // White text color
+      borderRadius: 2,
+      boxShadow: 24,
+      p: 4,
+    }}
+  >
+    <Typography variant="h6" sx={{ color: "white" }}>
+      Add New Company
+    </Typography>
+    <TextField
+      fullWidth
+      label="Company Name"
+      value={newCompanyName}
+      onChange={(e) => setNewCompanyName(e.target.value)}
+      InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        mt: 2,
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+    <Button
+      variant="contained"
+      sx={{
+        mt: 2,
+        backgroundColor: "#bb86fc",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+        },
+      }}
+      onClick={handleAddCompany}
+    >
+      Add Company
+    </Button>
+  </Box>
+</Modal>
+
+<Modal open={roleModalOpen} onClose={() => setRoleModalOpen(false)}>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bgcolor: "#121212", // Dark background for modal
+      color: "white", // White text color
+      borderRadius: 2,
+      boxShadow: 24,
+      p: 4,
+    }}
+  >
+    <Typography variant="h6" sx={{ color: "white" }}>
+      Add New Role
+    </Typography>
+    <TextField
+      fullWidth
+      label="Role Name"
+      value={newRoleName}
+      onChange={(e) => setNewRoleName(e.target.value)}
+      InputLabelProps={{ style: { color: "white" } }}
+      InputProps={{
+        style: { color: "white" },
+      }}
+      sx={{
+        mt: 2,
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "white",
+          },
+          "&:hover fieldset": {
+            borderColor: "white",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "white",
+          },
+        },
+      }}
+    />
+    <Button
+      variant="contained"
+      sx={{
+        mt: 2,
+        backgroundColor: "#bb86fc",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+        },
+      }}
+      onClick={handleAddRole}
+    >
+      Add Role
+    </Button>
+  </Box>
+</Modal>
     </Container>
   );
 };
