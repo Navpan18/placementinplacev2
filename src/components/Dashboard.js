@@ -702,7 +702,7 @@ const [loadingRole, setLoadingRole] = useState(false);
 
         <FormControl fullWidth margin="normal">
           <TextField
-            label="Question link"
+            label="Question link (append https:// if not there)"
             name="hrDetails"
             value={formData.hrDetails}
             onChange={handleChange}
