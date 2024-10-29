@@ -444,7 +444,7 @@ const MyListings = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
- 
+
   useEffect(() => {
     const fetchCompanyAndRoleData = async () => {
       await fetchCompanyNames(); // Fetch updated company names
@@ -812,7 +812,7 @@ const MyListings = () => {
                     </Typography>
 
                     {listing.mailScreenshots &&
-                    listing.mailScreenshots.split(",")[0][0] === "h" ? (
+                      listing.mailScreenshots.split(",")[0][0] === "h" ? (
                       listing.mailScreenshots.split(",").map((url, index) => (
                         <Button
                           key={index}
@@ -839,7 +839,7 @@ const MyListings = () => {
                       <strong>Job Description URLs:</strong>
                     </Typography>
                     {listing.jobDescriptions &&
-                    listing.jobDescriptions.split(",")[0][0] === "h" ? (
+                      listing.jobDescriptions.split(",")[0][0] === "h" ? (
                       listing.jobDescriptions.split(",").map((url, index) => (
                         <Button
                           key={index}

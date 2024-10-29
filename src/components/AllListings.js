@@ -191,57 +191,81 @@ const AllListings = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: "700" }} gutterBottom>
-          All Company Listings
-        </Typography>
-        <Button
-          onClick={goToMyListings}
-          variant="outlined"
+        <Box
           sx={{
-            mr: 2,
-            color: "white",
-            fontWeight: 700,
-            borderColor: "#bb86fc",
-            "&:hover": {
-              backgroundColor: "#9f6ae1",
-              borderColor: "#9f6ae1",
-            },
-          }}
-
-        >
-          My Listings
-        </Button>
-        <Button
-          onClick={goToDashboard}
-          variant="outlined"
-          sx={{
-            mr: 2,
-            color: "white",
-            fontWeight: 700,
-            borderColor: "#bb86fc",
-            "&:hover": {
-              backgroundColor: "#9f6ae1",
-              borderColor: "#9f6ae1",
-            },
+            mt: 4,
+            mb: 4,
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "center", sm: "flex-start" },
+            justifyContent: { xs: "center", sm: "space-between" },
+            textAlign: { xs: "center", sm: "left" },
           }}
         >
-          DashBoard
-        </Button>
-        <Button onClick={handleLogout} variant="outlined" sx={{
-          mr: 2,
-          color: "white",
-          backgroundColor: "#c22f2f",
-          borderColor: "#c22f2f",
-          fontWeight: "600",
-          "&:hover": {
-            backgroundColor: "#bd0606",
-            color: "white",
-            borderColor: "re#bd0606d",
-          },
-        }}>
-          Log Out
-        </Button>
-
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            All Company Listings
+          </Typography>
+          <Box
+            sx={{
+              mt: { xs: 2, sm: 0 },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { sm: "flex-start" },
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
+            <Button
+              onClick={goToMyListings}
+              variant="outlined"
+              sx={{
+                mb: { xs: 1, sm: 0 },
+                mr: { xs: 0, sm: 2 },
+                color: "white",
+                borderColor: "#bb86fc",
+                "&:hover": {
+                  backgroundColor: "#9f6ae1",
+                  borderColor: "#9f6ae1",
+                },
+              }}
+            >
+              My Listings
+            </Button>
+            <Button
+              onClick={goToDashboard}
+              variant="outlined"
+              sx={{
+                mb: { xs: 1, sm: 0 },
+                mr: { xs: 0, sm: 2 },
+                color: "white",
+                borderColor: "white",
+                "&:hover": {
+                  backgroundColor: "#9f6ae1",
+                  color: "white",
+                  borderColor: "#9f6ae1",
+                },
+              }}
+            >
+              DashBoard
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outlined"
+              sx={{
+                color: "white",
+                backgroundColor: "#c22f2f",
+                borderColor: "#c22f2f",
+                fontWeight: "600",
+                "&:hover": {
+                  backgroundColor: "#bd0606",
+                  color: "white",
+                  borderColor: "#bd0606",
+                },
+              }}
+            >
+              LOG OUT
+            </Button>
+          </Box>
+        </Box>
         {/* Search Bar */}
         {!modalIsOpen && <TextField
           label="Search company..."

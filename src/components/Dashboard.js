@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import {  auth } from "../firebase";
+import { auth } from "../firebase";
 import { v4 as uuidv4 } from "uuid";
 import {
   TextField,
@@ -32,8 +32,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const jobDescriptionsRef = useRef(null);
-const [loadingCompany, setLoadingCompany] = useState(false);
-const [loadingRole, setLoadingRole] = useState(false);
+  const [loadingCompany, setLoadingCompany] = useState(false);
+  const [loadingRole, setLoadingRole] = useState(false);
   const [loading, setLoading] = useState(false);
   const [companyOptions, setCompanyOptions] = useState([]);
   const [roleOptions, setRoleOptions] = useState([]);
@@ -65,13 +65,13 @@ const [loadingRole, setLoadingRole] = useState(false);
     const fetchCompanyNames = async () => {
       try {
         const scriptUrl =
-        "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
-      const response = await axios.get(scriptUrl);
-      const data = response.data;
-      const companies = data.map((doc) => ({
-        label: doc.Name,
-      }));
-      setCompanyOptions(companies);
+          "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
+        const response = await axios.get(scriptUrl);
+        const data = response.data;
+        const companies = data.map((doc) => ({
+          label: doc.Name,
+        }));
+        setCompanyOptions(companies);
       } catch (error) {
         console.error("Error fetching company names: ", error);
       }
@@ -85,7 +85,7 @@ const [loadingRole, setLoadingRole] = useState(false);
         const data = response.data;
         const roles = data.map((doc) => ({
           label: doc.Role,
-        })); 
+        }));
         setRoleOptions(roles);
       } catch (error) {
         console.error("Error fetching roles: ", error);
@@ -416,7 +416,7 @@ const [loadingRole, setLoadingRole] = useState(false);
   const goToAllListings = () => {
     navigate("/alllistings");
   };
-  
+
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
