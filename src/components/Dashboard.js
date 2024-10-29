@@ -258,7 +258,13 @@ const Dashboard = () => {
     const today = new Date();
     const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1)
       .toString()
-      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}_${today
+      .getHours()
+      .toString()
+      .padStart(2, "0")}-${today
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}-${today.getSeconds().toString().padStart(2, "0")}`;
     for (const imageFile of imageFiles) {
       const formDat = new FormData();
       formDat.append("file", imageFile);
@@ -284,7 +290,13 @@ const Dashboard = () => {
     const today = new Date();
     const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1)
       .toString()
-      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}_${today
+      .getHours()
+      .toString()
+      .padStart(2, "0")}-${today
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}-${today.getSeconds().toString().padStart(2, "0")}`;
     for (const pdfFile of pdfFiles) {
       const formDat = new FormData();
       formDat.append("file", pdfFile);
