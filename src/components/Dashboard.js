@@ -35,6 +35,7 @@ const Dashboard = () => {
   const [loadingCompany, setLoadingCompany] = useState(false);
   const [loadingRole, setLoadingRole] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadinginit, setLoadinginit] = useState(false);
   const [companyOptions, setCompanyOptions] = useState([]);
   const [roleOptions, setRoleOptions] = useState([]);
   const [newCompanyName, setNewCompanyName] = useState("");
@@ -62,6 +63,19 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
+    const fetchData = async () => {
+      setLoadinginit(true); // Set loading to true before starting fetches
+
+      try {
+        await Promise.all([fetchCompanyNames(), fetchRoleNames()]); // Wait for both functions to complete
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoadinginit(false); // Set loading to false once both fetches are done
+        // console.log("Data loading completed");
+      }
+    };
+
     const fetchCompanyNames = async () => {
       try {
         const scriptUrl =
@@ -92,9 +106,9 @@ const Dashboard = () => {
       }
     };
 
-    fetchCompanyNames();
-    fetchRoleNames();
+    fetchData(); // Start the data fetch process
   }, []);
+
 
   const handleLogout = async () => {
     try {
@@ -240,33 +254,52 @@ const Dashboard = () => {
 
   const uploadImagesToCloudinary = async (imageFiles) => {
     const imageUrls = [];
+    let iterationNum = 1;
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
     for (const imageFile of imageFiles) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      formData.append("upload_preset", "placement_default");
+      const formDat = new FormData();
+      formDat.append("file", imageFile);
+      formDat.append("upload_preset", "placement_default");
+    
+      const fileName = `${formData.companyName}_${formData.role}_${formData.iitName}_${formattedDate}_${iterationNum}`;
+      // console.log(fileName); 
+      formDat.append("public_id", fileName);
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/placementinplace/image/upload`,
-        { method: "POST", body: formData }
+        { method: "POST", body: formDat }
       );
       const data = await response.json();
       imageUrls.push(data.secure_url);
+      iterationNum++;
     }
     return imageUrls;
   };
 
   const uploadPDFsToCloudinary = async (pdfFiles) => {
     const pdfUrls = [];
+    let iterationNum = 1;
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
     for (const pdfFile of pdfFiles) {
-      const formData = new FormData();
-      formData.append("file", pdfFile);
-      formData.append("upload_preset", "job_descriptions_default");
-      formData.append("resource_type", "raw");
+      const formDat = new FormData();
+      formDat.append("file", pdfFile);
+      formDat.append("upload_preset", "job_descriptions_default");
+      formDat.append("resource_type", "raw");
+      const fileName = `${formData.companyName}_${formData.role}_${formData.iitName}_${formattedDate}_${iterationNum}`;
+      // console.log(fileName);
+      formDat.append("public_id", fileName);
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/jobdesc/upload`,
-        { method: "POST", body: formData }
+        { method: "POST", body: formDat }
       );
       const data = await response.json();
       pdfUrls.push(data.secure_url);
+      iterationNum++;
     }
     return pdfUrls;
   };
@@ -416,7 +449,20 @@ const Dashboard = () => {
   const goToAllListings = () => {
     navigate("/alllistings");
   };
-
+if (loadinginit) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh", // Full viewport height to center vertically
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  );
+}
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
