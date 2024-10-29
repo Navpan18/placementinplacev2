@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {  auth } from "../firebase"; // Firestore instance
+import { auth } from "../firebase"; // Firestore instance
 import { useAuth } from "../AuthContext"; // To get current user
 
 import Zoom from "react-medium-image-zoom";
@@ -28,45 +28,17 @@ import {
   Paper
 } from "@mui/material";
 
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  updateDoc,
-  addDoc,
-} from "firebase/firestore"; // Firestore methods
 import Modal from "react-modal"; // Import the Modal component
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { type } from "@testing-library/user-event/dist/type";
-// Modal styling
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    width: "600px", // Customize width
-    maxHeight: "90vh", // Ensure modal doesn't overflow vertically
-    overflowY: "auto", // Enable scroll if content is too long
-  },
-  overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Dimmed background for overlay
-  },
-};
 
 const MyListings = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth(); // Get the current logged-in user
   const [listings, setListings] = useState([]);
   const [refreshData, setRefreshData] = useState(false); // To track when refresh is needed
-const [loadingCompany, setLoadingCompany] = useState(false);
-const [loadingRole, setLoadingRole] = useState(false);
-
+  const [loadingCompany, setLoadingCompany] = useState(false);
+  const [loadingRole, setLoadingRole] = useState(false);
   const [loading, setLoading] = useState(true); // General page loading
   const [modalLoading, setModalLoading] = useState(false); // Modal-specific loading
   const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
@@ -114,10 +86,9 @@ const [loadingRole, setLoadingRole] = useState(false);
         "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
       const response = await axios.get(scriptUrl);
       const data = response.data;
-      console.log(data);
       const companies = data.map((doc) => ({
         label: doc.Name,
-      })); 
+      }));
       setCompanyOptions(companies);
     } catch (error) {
       console.error("Error fetching company names: ", error);
@@ -130,10 +101,9 @@ const [loadingRole, setLoadingRole] = useState(false);
         "https://script.google.com/macros/s/AKfycbzyPuKzhLHdwBFfxD7lw62EuipAQ8fkX9t2ezm2R3Y0nuETftUcs9QtxrRKLjqtUjRV/exec";
       const response = await axios.get(scriptUrl);
       const data = response.data;
-      console.log(data);
       const roles = data.map((doc) => ({
         label: doc.Role,
-      })); 
+      }));
       setRoleOptions(roles);
     } catch (error) {
       console.error("Error fetching roles: ", error);
@@ -157,7 +127,6 @@ const [loadingRole, setLoadingRole] = useState(false);
     // Function to select a random URL from the array
     function getRandomUrl() {
       const randomIndex = Math.floor(Math.random() * urls.length);
-      console.log(randomIndex);
       return urls[randomIndex];
     }
 
@@ -165,15 +134,12 @@ const [loadingRole, setLoadingRole] = useState(false);
     try {
       const response = await axios.get(scriptUrl);
       const data = response.data;
-      console.log(data);
       // Since you're fetching user-specific listings, you'll need to filter the results by current user email
       const userListings = data.filter(
         (listing) => listing.createdBy === currentUser.email
       );
       setListings(userListings);
-      listings.map((listing) => console.log(listing));
       setLoading(false);
-      console.log("listings", listings);
     } catch (error) {
       console.error("Error fetching listings from Google Sheets: ", error);
       setLoading(false);
@@ -185,7 +151,6 @@ const [loadingRole, setLoadingRole] = useState(false);
         "https://script.googleusercontent.com/macros/echo?user_content_key=bfhJOAQssEVf9EyQ7_Lor4uEGO7kvBHUjXoaccUa5OZ0I57v73Pz6VCstoLU6bdCNDZxsuWZ84cyK8ALFFO-2kNteNy7bNlim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnL1yeDlcTTRa8yC6SDGy9QVFtmk5dLQW14iPD09hMsC4PYVAO-3GwS-D2NozHjLMzWNikhR0PzC13QRAeoEPq5viPOjabws5udz9Jw9Md8uu&lib=MpvmaeSVkgm9o60VeW2Kgd_sos1bztRqT";
       const response = await axios.get(scriptUrl);
       const data = response.data;
-      console.log(data);
       const companies = data.map((doc) => ({
         label: doc.Name,
       }));
@@ -197,7 +162,6 @@ const [loadingRole, setLoadingRole] = useState(false);
         "https://script.google.com/macros/s/AKfycbzyPuKzhLHdwBFfxD7lw62EuipAQ8fkX9t2ezm2R3Y0nuETftUcs9QtxrRKLjqtUjRV/exec";
       const response = await axios.get(scriptUrl);
       const data = response.data;
-      console.log(data);
       const roles = data.map((doc) => ({
         label: doc.Role,
       }));
@@ -210,13 +174,9 @@ const [loadingRole, setLoadingRole] = useState(false);
 
   useEffect(() => {
     if (listings.length > 0) {
-      console.log("Updated listings:", listings); // Now the updated listings will be logged
-      listings.map((listing) => console.log("chalo", listing.documentId));
-
       const userListings = listings.filter(
         (listing) => listing.createdBy === currentUser.email
       );
-      console.log("userlisting", userListings); // This will map and log each listing
     }
   }, [listings]);
   useEffect(() => {
@@ -393,8 +353,6 @@ const [loadingRole, setLoadingRole] = useState(false);
       //   createdBy: currentUser.email,
       // });
       setUploadProgress(60); // Update after image upload
-
-      console.log(typeof formData.openFor);
       // Submit the form data to Google Sheets
       const newFormData = new FormData();
       newFormData.append("documentId", formData.documentId); // Append documentId
@@ -439,7 +397,6 @@ const [loadingRole, setLoadingRole] = useState(false);
       );
 
       const result = await response.text();
-      console.log("result", result);
 
       setUploadProgress(100); // Firestore update completed
       setTimeout(() => {
@@ -487,10 +444,7 @@ const [loadingRole, setLoadingRole] = useState(false);
       setFormData({ ...formData, [name]: value });
     }
   };
-  const handleViewScreenshot = (imageUrl) => {
-    setSelectedImage(imageUrl);
-    setImageModalOpen(true);
-  };
+ 
   useEffect(() => {
     const fetchCompanyAndRoleData = async () => {
       await fetchCompanyNames(); // Fetch updated company names
@@ -592,9 +546,6 @@ const [loadingRole, setLoadingRole] = useState(false);
   const closeModal = () => {
     setModalIsOpen(false);
   };
-  const filteredListings = listings.filter((listing) =>
-    listing.companyName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
 
   if (loading) {
@@ -614,19 +565,39 @@ const [loadingRole, setLoadingRole] = useState(false);
 
 
   return (
-    <Container maxWidth="md">
-      <Dialog open={uploadModalOpen}>
-        <DialogTitle>Uploading</DialogTitle>
+    <Container maxWidth="md" sx={{ padding: { xs: 1, sm: 3, md: 5 } }}>
+      <Dialog
+        open={uploadModalOpen}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: "500px",
+            height: "150px",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "black",
+            border: "2px solid white",
+            color: "white"
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: "700", fontSize: "32px" }}>Uploading</DialogTitle>
         <DialogContent>
           <Box sx={{ width: "100%" }}>
             {!successMessage && (
               <>
-                <Typography>Uploading... {uploadProgress}%</Typography>
-                <LinearProgress variant="determinate" value={uploadProgress} />
+                <Typography color="white">Uploading... {uploadProgress}%</Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={uploadProgress}
+                  sx={{
+                    backgroundColor: "grey",
+                    "& .MuiLinearProgress-bar": { backgroundColor: "#9f6ae1" }
+                  }}
+                />
               </>
             )}
             {successMessage && (
-              <Typography variant="h6" color="green">
+              <Typography variant="h6" sx={{ color: "green", fontWeight: "600" }}>
                 Edit Successful!
               </Typography>
             )}
@@ -635,17 +606,34 @@ const [loadingRole, setLoadingRole] = useState(false);
       </Dialog>
 
       <Box
-        sx={{ mt: 4, mb: 4, display: "flex", justifyContent: "space-between" }}
+        sx={{
+          mt: 4,
+          mb: 4,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: { xs: "center", sm: "flex-start" },
+          justifyContent: { xs: "center", sm: "space-between" },
+          textAlign: { xs: "center", sm: "left" },
+        }}
       >
         <Typography variant="h4" sx={{ fontWeight: 800 }}>
           My Listings
         </Typography>
-        <Box>
+        <Box
+          sx={{
+            mt: { xs: 2, sm: 0 },
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: {  sm: "flex-start" },
+            width: { xs: "100%", sm: "auto" },
+          }}
+        >
           <Button
             onClick={goToAllListings}
             variant="outlined"
             sx={{
-              mr: 2,
+              mb: { xs: 1, sm: 0 },
+              mr: { xs: 0, sm: 2 },
               color: "white",
               borderColor: "#bb86fc",
               "&:hover": {
@@ -660,7 +648,8 @@ const [loadingRole, setLoadingRole] = useState(false);
             onClick={goToDashboard}
             variant="outlined"
             sx={{
-              mr: 2,
+              mb: { xs: 1, sm: 0 },
+              mr: { xs: 0, sm: 2 },
               color: "white",
               borderColor: "white",
               "&:hover": {
@@ -676,7 +665,6 @@ const [loadingRole, setLoadingRole] = useState(false);
             onClick={handleLogout}
             variant="outlined"
             sx={{
-              mr: 2,
               color: "white",
               backgroundColor: "#c22f2f",
               borderColor: "#c22f2f",
@@ -684,7 +672,7 @@ const [loadingRole, setLoadingRole] = useState(false);
               "&:hover": {
                 backgroundColor: "#bd0606",
                 color: "white",
-                borderColor: "re#bd0606d",
+                borderColor: "#bd0606",
               },
             }}
           >
@@ -692,6 +680,7 @@ const [loadingRole, setLoadingRole] = useState(false);
           </Button>
         </Box>
       </Box>
+
       {!modalIsOpen && (
         <TextField
           fullWidth
@@ -736,6 +725,7 @@ const [loadingRole, setLoadingRole] = useState(false);
                 md: "repeat(3, 1fr)", // 3 cards on desktops
               },
               maxWidth: "1200px",
+              margin: "0 auto",
               gap: 5,
             }}
           >
@@ -754,7 +744,7 @@ const [loadingRole, setLoadingRole] = useState(false);
                     color: "white", // White text color
                     justifyContent: "center",
                     alignItems: "center",
-                    width: "20rem",
+                    width: { xs: "100%", sm: "80%", md: "100%" },
                     transition: "transform 0.3s ease-in-out", // Smooth zoom effect
                     "&:hover": {
                       transform: "scale(1.03)", // Slight zoom on hover
@@ -779,7 +769,7 @@ const [loadingRole, setLoadingRole] = useState(false);
                     </Typography>
                     <Typography>
                       <strong>Questions Link:</strong>{" "}
-                      {listing.hrDetails[0] != "N" ? (
+                      {listing.hrDetails[0] !== "N" ? (
                         <Button
                           variant="contained"
                           sx={{
@@ -821,7 +811,7 @@ const [loadingRole, setLoadingRole] = useState(false);
                     </Typography>
 
                     {listing.mailScreenshots &&
-                    listing.mailScreenshots.split(",")[0][0] === "h" ? (
+                      listing.mailScreenshots.split(",")[0][0] === "h" ? (
                       listing.mailScreenshots.split(",").map((url, index) => (
                         <Button
                           key={index}
@@ -848,7 +838,7 @@ const [loadingRole, setLoadingRole] = useState(false);
                       <strong>Job Description URLs:</strong>
                     </Typography>
                     {listing.jobDescriptions &&
-                    listing.jobDescriptions.split(",")[0][0] === "h" ? (
+                      listing.jobDescriptions.split(",")[0][0] === "h" ? (
                       listing.jobDescriptions.split(",").map((url, index) => (
                         <Button
                           key={index}
@@ -907,7 +897,7 @@ const [loadingRole, setLoadingRole] = useState(false);
       <Dialog
         open={imageModalOpen}
         onClose={handleCloseImageModal}
-        maxWidth="md"
+        maxWidth="sm"
         fullWidth
       >
         <DialogTitle>View Screenshot</DialogTitle>
@@ -932,52 +922,110 @@ const [loadingRole, setLoadingRole] = useState(false);
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
-        <DialogTitle>Add New Company</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Company Name"
-            value={newCompanyName}
-            onChange={(e) => setNewCompanyName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            sx={{
-              mt: 2,
-              backgroundColor: "#bb86fc",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#9f6ae1",
-              },
-            }}
-            onClick={handleAddCompany}
-            disabled={loadingCompany} // Disable button when loading
-          >
-            {loadingCompany ? (
-              <CircularProgress size={24} sx={{ color: "white" }} />
-            ) : (
-              "Add Company"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Dialog
+  open={modalOpen}
+  onClose={() => setModalOpen(false)}
+  sx={{
+    "& .MuiPaper-root": {
+      backgroundColor: "black",
+      color: "white",
+    },
+  }}
+>
+  <DialogTitle>Add New Company</DialogTitle>
+  <DialogContent>
+    <Box sx={{ mt: 2 }}> {/* Add margin-top here for spacing */}
+      <TextField
+        fullWidth
+        label="Company Name"
+        value={newCompanyName}
+        onChange={(e) => setNewCompanyName(e.target.value)}
+        InputLabelProps={{ style: { color: "white" } }} // Label color
+        InputProps={{
+          style: { color: "white" }, // Text color
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "white",
+            },
+            "&:hover fieldset": {
+              borderColor: "white",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "white",
+            },
+          },
+        }}
+      />
+    </Box>
+  </DialogContent>
+  <DialogActions>
+    <Button
+    variant="outlined"
+      onClick={() => setModalOpen(false)}
+      sx={{ color: "red",borderColor:"red" }}
+    >
+      Cancel
+    </Button>
+    <Button
+      variant="contained"
+      sx={{
+        mt: 2,
+        backgroundColor: "#bb86fc",
+        color: "white",
+        "&:hover": {
+          backgroundColor: "#9f6ae1",
+        },
+      }}
+      onClick={handleAddCompany}
+      disabled={loadingCompany}
+    >
+      {loadingCompany ? (
+        <CircularProgress size={24} sx={{ color: "white" }} />
+      ) : (
+        "Add Company"
+      )}
+    </Button>
+  </DialogActions>
+</Dialog>
 
-      <Dialog open={roleModalOpen} onClose={() => setRoleModalOpen(false)}>
+      <Dialog open={roleModalOpen} onClose={() => setRoleModalOpen(false)} sx={{
+    "& .MuiPaper-root": {
+      backgroundColor: "black",
+      color: "white",
+    },
+  }}>
         <DialogTitle>Add New Role</DialogTitle>
         <DialogContent>
+        <Box sx={{ mt: 2 }}>
           <TextField
             fullWidth
             label="Role Name"
             value={newRoleName}
-            onChange={(e) => setNewRoleName(e.target.value)}
+            onChange={(e) => setNewRoleName(e.target.value)} InputLabelProps={{ style: { color: "white" } }} // Label color
+            InputProps={{
+              style: { color: "white" }, // Text color
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "white",
+                },
+                "&:hover fieldset": {
+                  borderColor: "white",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "white",
+                },
+              },
+            }}
           />
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setRoleModalOpen(false)}>Cancel</Button>
+          <Button
+    variant="outlined" onClick={() => setRoleModalOpen(false)} sx={{ color: "red",borderColor:"red" }}>Cancel</Button>
           <Button
             variant="contained"
             sx={{
@@ -1001,19 +1049,22 @@ const [loadingRole, setLoadingRole] = useState(false);
       </Dialog>
 
       {/* Edit form in a modal popup */}
-      <Modal
+      {!uploadModalOpen && <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         contentLabel="Edit Listing Modal"
         style={{
           content: {
-            width: "500px",
-            left: "30%",
-            position: "absolute",
-            backgroundColor: "black", // Black background for the form
-            color: "white", // White text color
-            borderRadius: "10px", // Optional rounded corners
-            padding: "20px", // Padding for better layout
+            height: "70%",
+            width: "90%", // Responsive width for mobile
+            maxWidth: "500px",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "black",
+            color: "white",
+            borderRadius: "10px",
+            padding: "20px",
           },
           overlay: {
             backgroundColor: "rgba(0, 0, 0, 0.9)", // Dark overlay for contrast
@@ -1475,7 +1526,7 @@ const [loadingRole, setLoadingRole] = useState(false);
             </Button>
           </Box>
         </form>
-      </Modal>
+      </Modal>}
     </Container>
   );
 };

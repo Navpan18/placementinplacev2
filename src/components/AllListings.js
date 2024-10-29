@@ -22,15 +22,15 @@ const customModalStyles = {
     left: "50%",
     right: "auto",
     bottom: "auto",
-    marginRight: "-50%",
+    //marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    width: "700px",
-    maxHeight: "90vh",
+    width: "500px",
+    maxHeight: "80vh",
     overflowY: "auto",
     backgroundColor: "#1c1c1c", // Set modal background to greyish-black
     color: "white", // Ensure the text color is white throughout the modal
     borderRadius: "10px", // Optional rounded corners
-    padding: "20px", // Add padding for content
+    padding: { xs: "0", sm: "0", md: "20px", lg: "20px" }, // Add padding for content
   },
   overlay: {
     backgroundColor: "rgba(0, 0, 0, 0.75)",
@@ -69,10 +69,8 @@ const AllListings = () => {
       "https://script.google.com/macros/s/AKfycbxi7Y04QmMeiPhz4MjajBmRxyj7DjjzaHiyecSXu2yKKP6Il8mfzButb7qITm-7MsepYA/exec",
     ];
 
-    // Function to select a random index from the array
     function getRandomUrl() {
       const randomIndex = Math.floor(Math.random() * urls.length);
-      console.log(randomIndex);
       return urls[randomIndex];
     }
     const scriptUrl = getRandomUrl();
@@ -193,23 +191,23 @@ const AllListings = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" sx={{fontWeight:"700"}} gutterBottom>
+        <Typography variant="h4" sx={{ fontWeight: "700" }} gutterBottom>
           All Company Listings
         </Typography>
         <Button
           onClick={goToMyListings}
           variant="outlined"
-            sx={{
-              mr:2,
-              color: "white",
-              fontWeight: 700,
-              borderColor: "#bb86fc",
-              "&:hover": {
-                backgroundColor: "#9f6ae1",
-                borderColor: "#9f6ae1",
-              },
-            }}
-          
+          sx={{
+            mr: 2,
+            color: "white",
+            fontWeight: 700,
+            borderColor: "#bb86fc",
+            "&:hover": {
+              backgroundColor: "#9f6ae1",
+              borderColor: "#9f6ae1",
+            },
+          }}
+
         >
           My Listings
         </Button>
@@ -217,7 +215,7 @@ const AllListings = () => {
           onClick={goToDashboard}
           variant="outlined"
           sx={{
-            mr:2,
+            mr: 2,
             color: "white",
             fontWeight: 700,
             borderColor: "#bb86fc",
@@ -230,22 +228,22 @@ const AllListings = () => {
           DashBoard
         </Button>
         <Button onClick={handleLogout} variant="outlined" sx={{
-              mr: 2,
-              color: "white",
-              backgroundColor: "#c22f2f",
-              borderColor:"#c22f2f",
-              fontWeight:"600",
-              "&:hover": {
-                backgroundColor: "#bd0606",
-                color:"white",
-                borderColor: "re#bd0606d",
-              },
-            }}>
+          mr: 2,
+          color: "white",
+          backgroundColor: "#c22f2f",
+          borderColor: "#c22f2f",
+          fontWeight: "600",
+          "&:hover": {
+            backgroundColor: "#bd0606",
+            color: "white",
+            borderColor: "re#bd0606d",
+          },
+        }}>
           Log Out
         </Button>
 
         {/* Search Bar */}
-        <TextField
+        {!modalIsOpen && <TextField
           label="Search company..."
           variant="outlined"
           fullWidth
@@ -253,24 +251,24 @@ const AllListings = () => {
           value={searchTerm}
           onChange={handleSearchChange}
           InputLabelProps={{ style: { color: "white" } }}
-      InputProps={{
-        style: { color: "white" },
-      }}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": {
-            borderColor: "white",
-          },
-          "&:hover fieldset": {
-            borderColor: "white",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "white",
-          },
-        },
-      }}
+          InputProps={{
+            style: { color: "white" },
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "white",
+              },
+              "&:hover fieldset": {
+                borderColor: "white",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "white",
+              },
+            },
+          }}
         />
-
+        }
         {/* Display loader when loading */}
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
@@ -341,16 +339,30 @@ const AllListings = () => {
         <Modal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
-          style={customModalStyles}
+          style={{
+            ...customModalStyles,
+            content: {
+              ...customModalStyles.content,
+              maxWidth: "90%", // Adjust width for smaller screens
+              maxHeight: "90vh", // Limit height to fit smaller screens
+              overflowY: "auto", // Add scroll for overflow
+              margin: "auto", // Center the modal on smaller screens
+            },
+          }}
           ariaHideApp={false}
         >
           {selectedListing && (
             <Box
               sx={{
                 p: 2,
-                backgroundColor: "#1c1c1c", // Greyish-black background
-                color: "white", // White text color
-                borderRadius: 2, // Rounded corners for the modal
+                ml: "-50px",
+                backgroundColor: "#1c1c1c",
+                color: "white",
+                borderRadius: 2,
+                maxWidth: { xs: "75%", sm: "425px" }, // Set to 85% on mobile screens
+                width: "100%",
+                boxSizing: "border-box",
+                mx: "auto", // Center horizontally
               }}
             >
               <Typography variant="h5" gutterBottom>
@@ -367,7 +379,7 @@ const AllListings = () => {
               </Typography>
               <Typography>
                 <strong>Questions Link:</strong>{" "}
-                {selectedListing.hrDetails[0] != "N" ? (
+                {selectedListing.hrDetails[0] !== "N" ? (
                   <Button
                     variant="contained"
                     sx={{
@@ -376,10 +388,12 @@ const AllListings = () => {
                       "&:hover": {
                         backgroundColor: "#9f6ae1",
                       },
-                      textTransform: "none", // Keep the button text in normal case
-                      ml: 1, // Optional margin for spacing
+                      textTransform: "none",
+                      ml: 1,
                     }}
-                    onClick={() => window.open(selectedListing.hrDetails, "_blank", "noopener,noreferrer")}
+                    onClick={() =>
+                      window.open(selectedListing.hrDetails, "_blank", "noopener,noreferrer")
+                    }
                   >
                     Open Link
                   </Button>
@@ -391,31 +405,26 @@ const AllListings = () => {
                 <strong>Open For:</strong> {selectedListing.openFor}
               </Typography>
               <Typography>
-                <strong>PPT Date:</strong>{" "}
-                {selectedListing.pptDate.split("T")[0]}
+                <strong>PPT Date:</strong> {selectedListing.pptDate.split("T")[0]}
               </Typography>
               <Typography>
                 <strong>OA Date:</strong> {selectedListing.oaDate.split("T")[0]}
               </Typography>
               <Typography>
-                <strong>Final Hiring Number:</strong>{" "}
-                {selectedListing.finalHiringNumber}
+                <strong>Final Hiring Number:</strong> {selectedListing.finalHiringNumber}
               </Typography>
-
               <Typography variant="h6" gutterBottom>
                 Job Descriptions:{" "}
                 {renderJobDescriptions(selectedListing.jobDescriptions) === "N/A"
                   ? "N/A"
                   : renderJobDescriptions(selectedListing.jobDescriptions)}
               </Typography>
-
               <Typography variant="h6" gutterBottom>
                 Mail Screenshots:{" "}
                 {renderMailScreenshots(selectedListing.mailScreenshots) === "N/A"
                   ? "N/A"
                   : renderMailScreenshots(selectedListing.mailScreenshots)}
               </Typography>
-
               <Typography>
                 <strong>Created At:</strong>{" "}
                 {new Date(selectedListing.timestamp).toLocaleDateString()}
@@ -437,6 +446,7 @@ const AllListings = () => {
             </Box>
           )}
         </Modal>
+
       </Box>
     </Container>
   );
